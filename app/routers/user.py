@@ -38,7 +38,7 @@ async def user_me(
 ):
     return current_user
 
-@router.patch('/edit', response_model=UserDisplay)
+@router.patch('/me', response_model=UserDisplay)
 async def user_edit(
     current_user: Annotated[UserDisplay, Depends(JwtHandler.get_current_active_user)],
     request: UserUpdateBase,
@@ -46,7 +46,7 @@ async def user_edit(
 ):
     return db_user.update_user(db, current_user.id, request)
 
-@router.delete('/delete', response_model=None)
+@router.delete('/me', response_model=None)
 async def user_deactivate(
     current_user: Annotated[UserDisplay, Depends(JwtHandler.get_current_active_user)],
     db: Annotated[sqlalchemy.Session, Depends(get_pg_db)]

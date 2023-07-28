@@ -1,5 +1,4 @@
 import os
-
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -7,9 +6,10 @@ from sqlalchemy.orm import sessionmaker
 from cassandra.cqlengine.connection import register_connection, set_default_connection
 from cassandra.cluster import Cluster
 from cassandra.auth import PlainTextAuthProvider
-
+from ..config import settings
+ 
 # Postgres config
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:popmenlal@db:5432/delivery"
+SQLALCHEMY_DATABASE_URL = settings.postgres_url
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL
@@ -31,11 +31,9 @@ def get_pg_db():
 
 # Cassandra config
 
-KEYSPACE = os.environ["CASSANDRA_KEYSPACE"]
+KEYSPACE = settings.cassandra_keyspace
 
-auth_provider = PlainTextAuthProvider(username='cassandra', password='password')
-
-cluster = Cluster([os.environ["CASSANDRA_IP_ADDRESS"]], port=9042, auth_provider=auth_provider)
+cluster = Cluster([settings.cassandra_ip_address], port=9042)
 
 
 def get_ac_db():
@@ -47,7 +45,7 @@ def get_ac_db():
     return session
 
 _session = get_ac_db()
-_session.execute("CREATE KEYSPACE IF NOT EXISTS delivery WITH REPLICATION = "
+_session.execute(f"CREATE KEYSPACE IF NOT EXISTS {settings.cassandra_keyspace} WITH REPLICATION = "
                 "{ 'class' : 'SimpleStrategy', 'replication_factor' : 2 };")
 
 register_connection(str(_session), session=_session)

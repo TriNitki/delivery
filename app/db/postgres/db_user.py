@@ -5,7 +5,7 @@ from ...schemas.user import UserCreateBase, UserUpdateBase
 from ...db.postgres.models import DbUser
 from ...db.hash import Hash
 
-def create_user(db: Session, request: UserCreateBase):
+def create_user(db: Session, request: UserCreateBase) -> DbUser:
     hashed_password = Hash.bcrypt(request.password)
     print(request.currency)
     new_user = DbUser(
@@ -25,7 +25,7 @@ def create_user(db: Session, request: UserCreateBase):
     db.refresh(new_user)
     return new_user
 
-def update_user(db: Session, id: uuid.UUID, request: UserUpdateBase):
+def update_user(db: Session, id: uuid.UUID, request: UserUpdateBase) -> DbUser:
     user = db.query(DbUser).filter(DbUser.id == id)
     
     for attr, value in request.model_dump().items():
@@ -37,10 +37,10 @@ def update_user(db: Session, id: uuid.UUID, request: UserUpdateBase):
     db.commit()
     return user.one()
 
-def get_user_by_email(db: Session, email: str):
+def get_user_by_email(db: Session, email: str) -> DbUser:
     return db.query(DbUser).filter_by(email=email).first()
 
-def authenticate_user(db: Session, email: str, plain_password: str):
+def authenticate_user(db: Session, email: str, plain_password: str) -> DbUser:
     user = get_user_by_email(db, email)
     if not user:
         return False
