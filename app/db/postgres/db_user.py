@@ -1,0 +1,51 @@
+from sqlalchemy.orm.session import Session
+import uuid
+
+from ...schemas.user import UserCreateBase, UserUpdateBase
+from ...db.postgres.models import DbUser
+from ...db.hash import Hash
+
+def create_user(db: Session, request: UserCreateBase):
+    hashed_password = Hash.bcrypt(request.password)
+    print(request.currency)
+    new_user = DbUser(
+        full_name = request.full_name,
+        email = request.email,
+        phone_number = request.phone_number,
+        gender = request.gender,
+        date_of_birth = request.date_of_birth,
+        city = request.city,
+        profile_picture = request.profile_picture,
+        password = hashed_password,
+        currency = request.currency
+    )
+    
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user
+
+def update_user(db: Session, id: uuid.UUID, request: UserUpdateBase):
+    user = db.query(DbUser).filter(DbUser.id == id)
+    
+    for attr, value in request.model_dump().items():
+        if value is not None:
+            user.update({
+                getattr(DbUser, attr): value
+            })
+    
+    db.commit()
+    return user.one()
+
+def get_user_by_email(db: Session, email: str):
+    return db.query(DbUser).filter_by(email=email).first()
+
+def authenticate_user(db: Session, email: str, plain_password: str):
+    user = get_user_by_email(db, email)
+    if not user:
+        return False
+    
+    hashed_password = user.password
+    if not Hash.verify(hashed_password, plain_password):
+        return False
+    return user
