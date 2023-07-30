@@ -30,15 +30,11 @@ def get_pg_db():
         db.close()
 
 # Cassandra config
-
-KEYSPACE = settings.cassandra_keyspace
-
 cluster = Cluster([settings.cassandra_ip_address], port=9042)
-
 
 def get_ac_db():
     """
-    Returns the session generator for the `Apache Cassandra` database
+    Returns the session for the `Apache Cassandra` database
     """
     
     session = cluster.connect()

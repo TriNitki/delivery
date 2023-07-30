@@ -18,7 +18,6 @@ router = APIRouter(
 async def create_review(
     current_user: Annotated[UserDisplay, Depends(JwtHandler.get_current_active_user)],
     product_number: int,
-    request: ReviewCreateBase,
-    db: Annotated[cassandra.Session, Depends(get_ac_db)]
+    request: ReviewCreateBase
 ):
-    return db_review.create_review(db, current_user.id, product_number, request)
+    return db_review.create_review(current_user.id, product_number, request)

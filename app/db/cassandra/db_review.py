@@ -5,7 +5,7 @@ from datetime import datetime
 from ...db.cassandra.models import DbReview
 from ...schemas.review import ReviewCreateBase
 
-def create_review(db: Session, id: UUID, product_number: int, request: ReviewCreateBase):
+def create_review(id: UUID, product_number: int, request: ReviewCreateBase):
     publication_datetime = datetime.now()
     
     review = DbReview.create(

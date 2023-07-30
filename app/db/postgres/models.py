@@ -1,33 +1,15 @@
-from sqlalchemy import Column, UUID, String, Boolean, DateTime, Integer, DECIMAL, SmallInteger
+from sqlalchemy import Column, UUID, String, Boolean, DateTime, Integer, DECIMAL, SmallInteger, event, func
 from sqlalchemy.sql.schema import ForeignKey
-from sqlalchemy.orm import relationship
 from datetime import datetime
 from uuid import uuid4
 
-from ...db.database import Base
+from ...db.database import Base, SessionLocal
 
-class CustomIncrement:
-    def __init__(self):
-        self.counter = 0
-
-    def __get__(self, instance, owner):
-        return f"{self.counter:06d}"
-
-    def __set__(self, instance, value):
-        raise AttributeError("Cannot set the value directly.")
-
-    def increment(self):
-        self.counter += 1
-
-class CustomIncrementType(Integer):
-    def __init__(self):
-        super().__init__()
-
-    def process_bind_param(self, value, dialect):
-        return int(value)
-
-    def process_result_value(self, value, dialect):
-        return CustomIncrement()
+def generate_padded_value(context):
+    session = SessionLocal.object_session(context)
+    max_value = session.query(func.max(DbProduct.product_number)).scalar()
+    current_max = max_value or 0
+    return f"{int(current_max) + 1:06d}"
 
 class DbUser(Base):
     __tablename__: str = 'users'
@@ -49,7 +31,7 @@ class DbUser(Base):
     
 class DbProduct(Base):
     __tablename__: str = 'products'
-    product_number = Column(CustomIncrementType, primary_key=True, unique=True, nullable=False)
+    product_number = Column(String(6), default=generate_padded_value, primary_key=True, unique=True, nullable=False)
     price = Column(DECIMAL, nullable=False)
     weight = Column(Integer, nullable=False)
     manufacturer_country = Column(String, nullable=False)
@@ -60,5 +42,7 @@ class DbProduct(Base):
     image = Column(String, nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
     seller_id = Column(UUID, ForeignKey('users.id'))
-    
-    
+
+@event.listens_for(DbProduct, 'before_insert')
+def before_insert_listener(mapper, connection, target):
+    target.product_number = generate_padded_value(target)
