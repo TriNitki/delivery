@@ -4,7 +4,7 @@ from enum import Enum
 import json
 from uuid import UUID
 
-with open('static\\countries.json') as f:
+with open(r'app/static/countries.json', ) as f:
     countries_dict = {country["name"]: country["name"] for country in json.load(f)}
 
 Countries = Enum('Countries', countries_dict)
