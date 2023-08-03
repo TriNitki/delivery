@@ -7,7 +7,7 @@ class ReviewCreateBase(BaseModel):
     description: str
     
 class ReviewDisplay(BaseModel):
-    product_number: int
+    product_id: str
     rating: int
     description: str
     publication_datetime: datetime

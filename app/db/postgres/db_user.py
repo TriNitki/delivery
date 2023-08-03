@@ -2,8 +2,8 @@ from sqlalchemy.orm.session import Session
 import uuid
 
 from ...schemas.user import UserCreateBase, UserUpdateBase
-from ...db.postgres.models import DbUser
-from ...db.hash import Hash
+from .models import DbUser
+from ..hash import Hash
 
 def create_user(db: Session, request: UserCreateBase) -> DbUser:
     hashed_password = Hash.bcrypt(request.password)
@@ -16,7 +16,7 @@ def create_user(db: Session, request: UserCreateBase) -> DbUser:
         city = request.city,
         profile_picture = request.profile_picture,
         password = hashed_password,
-        currency = request.currency
+        currency_name = request.currency_name
     )
     
     db.add(new_user)

@@ -26,7 +26,7 @@ class UserCreateBase(BaseModel):
     gender: Genders
     date_of_birth: datetime
     city: str
-    currency: Currencies | None = None
+    currency_name: Currencies | None = None
     profile_picture: str
 
 class UserUpdateBase(BaseModel):
@@ -36,7 +36,7 @@ class UserUpdateBase(BaseModel):
     gender: Genders | None = None
     date_of_birth: datetime | None = None
     city: str | None = None
-    currency: Currencies | None = None
+    currency_name: Currencies | None = None
     profile_picture: str | None = None
     role: Roles | None = None
     balance: float | None = None
@@ -53,7 +53,7 @@ class UserDisplay(BaseModel):
     gender: Genders
     date_of_birth: datetime
     city: str
-    currency: Currencies
+    currency_name: Currencies
     profile_picture: str
     role: Roles
     balance: float

@@ -2,7 +2,6 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 import cassandra.cluster as cassandra
 
-from ..db.database import get_ac_db
 from ..db.jwt import JwtHandler
 from ..schemas.review import ReviewCreateBase, ReviewDisplay
 from ..schemas.user import UserDisplay
@@ -17,7 +16,7 @@ router = APIRouter(
 @router.post('/', response_model=ReviewDisplay)
 async def create_review(
     current_user: Annotated[UserDisplay, Depends(JwtHandler.get_current_active_user)],
-    product_number: int,
+    product_id: str,
     request: ReviewCreateBase
 ):
-    return db_review.create_review(current_user.id, product_number, request)
+    return db_review.create_review(current_user.id, product_id, request)

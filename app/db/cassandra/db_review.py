@@ -1,19 +1,18 @@
-from cassandra.cluster import Session
 from uuid import UUID
 from datetime import datetime
 
-from ...db.cassandra.models import DbReview
+from .models import DbReview
 from ...schemas.review import ReviewCreateBase
 
-def create_review(id: UUID, product_number: int, request: ReviewCreateBase):
+def create_review(id: UUID, product_id: str, request: ReviewCreateBase):
     publication_datetime = datetime.now()
     
-    review = DbReview.create(
-        product_number=product_number,
+    new_review = DbReview.create(
+        product_id=product_id,
         publication_datetime=publication_datetime,
         description = request.description, 
         rating=request.rating,
         user_id=id
     )
     
-    return review
+    return new_review

@@ -1,13 +1,15 @@
 from sqlalchemy.orm.session import Session
 import uuid
 
-from ...schemas.product import ProductCreateBase
-from ...db.postgres.models import DbProduct
+from ...schemas.product import ProductCreateBase, ProductDisplay
+from ...db.postgres.models import DbProduct, DbStock
+from .db_stock import create_stock
+
 
 def create_product(db: Session, id: uuid.UUID, request: ProductCreateBase):
     new_product = DbProduct(
-        product_number = None,
         price = request.price,
+        name = request.name,
         weight = request.weight,
         manufacturer_country = request.manufacturer_country.value,
         category_name = request.category_name,
@@ -21,4 +23,10 @@ def create_product(db: Session, id: uuid.UUID, request: ProductCreateBase):
     db.add(new_product)
     db.commit()
     db.refresh(new_product)
+    
+    create_stock(db, new_product.id, request.stock.warehouse_id, request.stock.units_in_stock)
+    
     return new_product
+
+def retrieve_product(db: Session, product_id: str) -> ProductDisplay:
+    return db.query(DbProduct).filter(DbProduct.id == product_id).first()
