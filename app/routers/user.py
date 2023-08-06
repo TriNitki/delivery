@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Path, Query, Body
 from fastapi.security import OAuth2PasswordRequestForm
 from typing import Annotated
 import sqlalchemy.orm.session as sqlalchemy
@@ -17,16 +17,18 @@ router = APIRouter(
 
 @router.post('/signin', response_model=UserDisplay)
 async def signup(
-    request: UserCreateBase, 
-    db: Annotated[sqlalchemy.Session, Depends(get_pg_db)]
+    db: Annotated[sqlalchemy.Session, Depends(get_pg_db)],
+    request: UserCreateBase = Body()
+    
 ):
     return db_user.create_user(db, request)
      
 
 @router.post('/login', response_model=Token)
 async def login(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-    db: Annotated[sqlalchemy.Session, Depends(get_pg_db)]
+    db: Annotated[sqlalchemy.Session, Depends(get_pg_db)],
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
+    
 ):
     access_token = await JwtHandler.generate_token(db, form_data)
     return {"access_token": access_token, "token_type": "bearer"}
@@ -41,8 +43,9 @@ async def user_me(
 @router.patch('/me', response_model=UserDisplay)
 async def user_edit(
     current_user: Annotated[UserDisplay, Depends(JwtHandler.get_current_active_user)],
-    request: UserUpdateBase,
-    db: Annotated[sqlalchemy.Session, Depends(get_pg_db)]
+    db: Annotated[sqlalchemy.Session, Depends(get_pg_db)],
+    request: UserUpdateBase = Body()
+    
 ):
     return db_user.update_user(db, current_user.id, request)
 

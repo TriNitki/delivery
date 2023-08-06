@@ -2,12 +2,13 @@ from uuid import UUID
 from datetime import datetime, timedelta
 
 from .models import DbOrder
-from ...schemas.order import OrderCreateBase
+from ...schemas.order import OrderCreateBase, OrderDisplay
+from ...schemas.product import Product
 from ...db.database import get_pg_db
 from ..postgres import db_product
 
 def create_order(id: UUID, product_id: str, request: OrderCreateBase) -> DbOrder:
-    creation_datetime = datetime.now()
+    creation_datetime = datetime.now() if request.creation_datetime is None else request.creation_datetime
     db = get_pg_db()
     product = db_product.retrieve_product(next(db), product_id)
     
@@ -37,4 +38,35 @@ def create_order(id: UUID, product_id: str, request: OrderCreateBase) -> DbOrder
         product_seller_id = product.seller_id
     )
     
-    return new_order
+    return __to_order_display(new_order)
+
+def get_order(id: UUID, product_id: str, creation_datetime: datetime):
+    order = DbOrder.get(user_id = id, product_id = product_id, creation_datetime = creation_datetime)
+    
+    return __to_order_display(order)
+
+
+def __to_order_display(order: DbOrder):
+    return OrderDisplay(
+        user_id=order.user_id,
+        creation_datetime=order.creation_datetime,
+        delivery_datetime=order.delivery_datetime,
+        estimated_delivery_time=order.estimated_delivery_time,
+        delivery_address=order.delivery_address,
+        quantity=order.quantity,
+        is_cancelled=order.is_cancelled,
+        product=Product(
+            id=order.product_id,
+            name=order.product_name,
+            price=order.product_price,
+            weight=order.product_weight,
+            manufacturer_country=order.product_manufacturer_country,
+            category_name=order.product_category_name,
+            brand=order.product_brand,
+            discount=order.product_discount,
+            description=order.product_description,
+            image=order.product_image,
+            is_active=order.product_is_active,
+            seller_id=order.product_seller_id
+        )
+    )

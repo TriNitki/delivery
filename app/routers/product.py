@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Path, Query, Body
 import sqlalchemy.orm.session as sqlalchemy
 
 from ..db.database import get_pg_db
@@ -17,16 +17,16 @@ router = APIRouter(
 @router.post('/', response_model=ProductDisplay)
 async def create_product(
     current_user: Annotated[UserDisplay, Depends(JwtHandler.get_current_active_user)],
-    request: ProductCreateBase,
-    db: Annotated[sqlalchemy.Session, Depends(get_pg_db)]
+    db: Annotated[sqlalchemy.Session, Depends(get_pg_db)],
+    request: ProductCreateBase = Body()
 ):
     return db_product.create_product(db, current_user.id, request)
 
 @router.get('/{product_id}', response_model=ProductDisplay)
 async def retrieve_product(
     current_user: Annotated[UserDisplay, Depends(JwtHandler.get_current_active_user)],
-    product_id: str,
-    db: Annotated[sqlalchemy.Session, Depends(get_pg_db)]
+    db: Annotated[sqlalchemy.Session, Depends(get_pg_db)],
+    product_id: str = Path()
 ):
     return db_product.retrieve_product(db, product_id)
     

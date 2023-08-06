@@ -1,6 +1,5 @@
 from cassandra.cqlengine import columns
 from cassandra.cqlengine.models import Model
-from cassandra.cqlengine.usertype import UserType
 
 from ...db.database import get_ac_db
 

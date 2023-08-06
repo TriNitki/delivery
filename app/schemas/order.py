@@ -7,6 +7,7 @@ from .product import Product
 class OrderCreateBase(BaseModel):
     delivery_address: str
     quantity: int
+    creation_datetime: datetime | None = None
 
 class OrderDisplay(BaseModel):
     user_id: UUID
