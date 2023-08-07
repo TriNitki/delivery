@@ -8,7 +8,7 @@ from cassandra.auth import PlainTextAuthProvider
 from ..config import settings
  
 # Postgres config
-SQLALCHEMY_DATABASE_URL = settings.postgres_url
+SQLALCHEMY_DATABASE_URL = settings.POSTGRES_URL
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL
@@ -29,7 +29,7 @@ def get_pg_db():
         db.close()
 
 # Cassandra config
-cluster = Cluster([settings.cassandra_ip_address], port=9042)
+cluster = Cluster([settings.CASSANDRA_IP_ADDRESS], port=9042)
 
 def get_ac_db():
     """
@@ -40,7 +40,7 @@ def get_ac_db():
     return session
 
 _session = get_ac_db()
-_session.execute(f"CREATE KEYSPACE IF NOT EXISTS {settings.cassandra_keyspace} WITH REPLICATION = "
+_session.execute(f"CREATE KEYSPACE IF NOT EXISTS {settings.CASSANDRA_KEYSPACE} WITH REPLICATION = "
                 "{ 'class' : 'SimpleStrategy', 'replication_factor' : 2 };")
 
 register_connection(str(_session), session=_session)

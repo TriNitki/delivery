@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Path, Query, Body
 import cassandra.cluster as cassandra
 from datetime import datetime
 
-from ..db.jwt import JwtHandler
+from ..utils.jwt import JwtHandler
 from ..schemas.order import OrderCreateBase, OrderDisplay
 from ..schemas.user import UserDisplay
 from ..db.cassandra import db_order

@@ -11,9 +11,9 @@ from ..db.postgres import db_user
 from ..db.database import get_pg_db
 from ..config import settings
 
-SECRET_KEY = settings.secret_key
-ALGORITHM = settings.algorithm
-ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes
+JWT_PRIVATE_KEY = settings.JWT_PRIVATE_KEY
+ALGORITHM = settings.ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="user/login")
 
@@ -25,7 +25,7 @@ class JwtHandler():
         else:
             expire = datetime.utcnow() + timedelta(minutes=15)
         to_encode.update({"exp": expire})
-        encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+        encoded_jwt = jwt.encode(to_encode, JWT_PRIVATE_KEY, algorithm=ALGORITHM)
         return encoded_jwt
 
     async def generate_token(db: Session, form_data: OAuth2PasswordRequestForm):
@@ -52,7 +52,7 @@ class JwtHandler():
             headers={"WWW-Authenticate": "Bearer"},
         )
         try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            payload = jwt.decode(token, JWT_PRIVATE_KEY, algorithms=[ALGORITHM])
             username: str = payload.get("email")
             if username is None:
                 raise credentials_exception

@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Path, Query, Body
 import cassandra.cluster as cassandra
 
-from ..db.jwt import JwtHandler
+from ..utils.jwt import JwtHandler
 from ..schemas.favorite import FavoriteDisplay, UserFavoritesDisplay
 from ..schemas.user import UserDisplay
 from ..db.cassandra import db_favorite

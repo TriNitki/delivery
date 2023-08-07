@@ -3,7 +3,7 @@ import uuid
 
 from ...schemas.user import UserCreateBase, UserUpdateBase
 from .models import DbUser
-from ..hash import Hash
+from ...utils.hash import Hash
 
 def create_user(db: Session, request: UserCreateBase) -> DbUser:
     hashed_password = Hash.bcrypt(request.password)

@@ -5,7 +5,7 @@ import sqlalchemy.orm.session as sqlalchemy
 
 from ..db.database import get_pg_db
 from ..db.postgres import db_user
-from ..db.jwt import JwtHandler
+from ..utils.jwt import JwtHandler
 from ..schemas.user import UserCreateBase, UserDisplay, UserUpdateBase
 from ..schemas.token import Token
 

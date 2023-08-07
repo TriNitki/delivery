@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, constr
 from uuid import UUID
 from datetime import datetime
 from enum import Enum
@@ -19,15 +19,20 @@ class Currencies(str, Enum):
     eur = "EUR"
 
 class UserCreateBase(BaseModel):
-    email: str
+    email: EmailStr
     full_name: str
-    password: str
+    password: constr(min_length=4)
+    password_confirm: constr(min_length=4)
     phone_number: str
     gender: Genders
     date_of_birth: datetime
     city: str
     currency_name: Currencies | None = None
     profile_picture: str
+
+class LoginBase(BaseModel):
+    email: EmailStr
+    password: constr(min_length=4)
 
 class UserUpdateBase(BaseModel):
     full_name: str | None = None
@@ -43,8 +48,6 @@ class UserUpdateBase(BaseModel):
     is_active: bool | None = None
     is_registered: bool | None = None
     
-    
-
 class UserDisplay(BaseModel):
     id: UUID
     email: str
