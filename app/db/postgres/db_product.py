@@ -28,5 +28,5 @@ def create_product(db: Session, id: uuid.UUID, request: ProductCreateBase):
     
     return new_product
 
-def retrieve_product(db: Session, product_id: str) -> ProductDisplay:
+def get_product(db: Session, product_id: str) -> ProductDisplay:
     return db.query(DbProduct).filter(DbProduct.id == product_id).first()

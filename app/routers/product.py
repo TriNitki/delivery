@@ -23,10 +23,10 @@ async def create_product(
     return db_product.create_product(db, current_user.id, request)
 
 @router.get('/{product_id}', response_model=ProductDisplay)
-async def retrieve_product(
+async def get_product(
     current_user: Annotated[UserDisplay, Depends(JwtHandler.get_current_active_user)],
     db: Annotated[sqlalchemy.Session, Depends(get_pg_db)],
     product_id: str = Path()
 ):
-    return db_product.retrieve_product(db, product_id)
+    return db_product.get_product(db, product_id)
     

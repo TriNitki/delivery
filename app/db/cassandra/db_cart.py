@@ -15,3 +15,14 @@ def create_cart(id: UUID, product_id: str, request: CartCreateBase):
     )
     
     return new_cart
+
+def get_user_cart(id: UUID):
+    cart = DbCart.objects(user_id = id).all()[:]
+    return {
+        "user_id": id,
+        "cart": [{
+            "product_id": product["product_id"],
+            "quantity": product["quantity"],
+            "addition_datetime": product["addition_datetime"]
+            } for product in cart]
+    }

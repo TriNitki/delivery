@@ -9,11 +9,11 @@ from ..schemas.user import UserDisplay
 from ..db.cassandra import db_order
 
 router = APIRouter(
-    prefix='/user/order/{product_id}',
+    prefix='/user/order',
     tags=['order']
 )
 
-@router.post('/', response_model=OrderDisplay)
+@router.post('/{product_id}', response_model=OrderDisplay)
 async def create_order(
     current_user: Annotated[UserDisplay, Depends(JwtHandler.get_current_active_user)],
     product_id: str = Path(),
@@ -21,7 +21,7 @@ async def create_order(
 ):
     return db_order.create_order(current_user.id, product_id, request)
 
-@router.get('/', response_model=OrderDisplay)
+@router.get('/{product_id}', response_model=OrderDisplay)
 async def get_order(
     current_user: Annotated[UserDisplay, Depends(JwtHandler.get_current_active_user)],
     product_id: str = Path(),

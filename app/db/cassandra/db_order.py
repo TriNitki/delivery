@@ -10,7 +10,7 @@ from ..postgres import db_product
 def create_order(id: UUID, product_id: str, request: OrderCreateBase) -> DbOrder:
     creation_datetime = datetime.now() if request.creation_datetime is None else request.creation_datetime
     db = get_pg_db()
-    product = db_product.retrieve_product(next(db), product_id)
+    product = db_product.get_product(next(db), product_id)
     
     '''
     Replace `delivery_datetime` and `estimated_delivery_time` values for not had coded variants

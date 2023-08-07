@@ -8,11 +8,11 @@ from ..schemas.user import UserDisplay
 from ..db.cassandra import db_favorite
 
 router = APIRouter(
-    prefix='/user/favorite/{product_id}',
+    prefix='/user/favorite',
     tags=['favorite']
 )
 
-@router.post('/', response_model=FavoriteDisplay)
+@router.post('/{product_id}', response_model=FavoriteDisplay)
 async def create_favorite(
     current_user: Annotated[UserDisplay, Depends(JwtHandler.get_current_active_user)],
     product_id: str = Path()
