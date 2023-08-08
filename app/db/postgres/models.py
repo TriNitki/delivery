@@ -26,7 +26,7 @@ class DbUser(Base):
     role = Column(String, default="BUYER", nullable=False)
     password = Column(String, nullable=False)
     balance = Column(DECIMAL, default=0, nullable=False)
-    registration_datetime = Column(DateTime, default=datetime.now, nullable=False)
+    registration_datetime = Column(DateTime, default=datetime.utcnow, nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
     is_registered = Column(Boolean, default=True, nullable=False)
     

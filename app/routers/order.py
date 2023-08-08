@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Path, Query, Body
 import cassandra.cluster as cassandra
 from datetime import datetime
 
-from ..utils.jwt import JwtHandler
+from ..utils.auth import Auth
 from ..schemas.order import OrderCreateBase, OrderDisplay
 from ..schemas.user import UserDisplay
 from ..db.cassandra import db_order
@@ -13,9 +13,11 @@ router = APIRouter(
     tags=['order']
 )
 
+
+
 @router.post('/{product_id}', response_model=OrderDisplay)
 async def create_order(
-    current_user: Annotated[UserDisplay, Depends(JwtHandler.get_current_active_user)],
+    current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
     product_id: str = Path(),
     request: OrderCreateBase = Body()
 ):
@@ -23,7 +25,7 @@ async def create_order(
 
 @router.get('/{product_id}', response_model=OrderDisplay)
 async def get_order(
-    current_user: Annotated[UserDisplay, Depends(JwtHandler.get_current_active_user)],
+    current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
     product_id: str = Path(),
     creation_datetime: datetime = Query()
     

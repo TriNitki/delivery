@@ -4,7 +4,7 @@ from datetime import datetime
 from .models import DbFavorite
 
 def create_favorite(id: UUID, product_id: str):
-    addition_datetime = datetime.now()
+    addition_datetime = datetime.utcnow()
     
     new_favorite = DbFavorite.create(
         product_id=product_id,

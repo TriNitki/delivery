@@ -5,7 +5,7 @@ from .models import DbReview
 from ...schemas.review import ReviewCreateBase
 
 def create_review(id: UUID, product_id: str, request: ReviewCreateBase):
-    publication_datetime = datetime.now()
+    publication_datetime = datetime.utcnow()
     
     new_review = DbReview.create(
         product_id=product_id,

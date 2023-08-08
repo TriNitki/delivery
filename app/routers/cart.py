@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Path, Query, Body
 import cassandra.cluster as cassandra
 
-from ..utils.jwt import JwtHandler
+from ..utils.auth import Auth
 from ..schemas.user import UserDisplay
 from ..schemas.cart import CartCreateBase, CartDisplay, UserCartDisplay
 from ..db.cassandra import db_cart
@@ -12,9 +12,11 @@ router = APIRouter(
     tags=['cart']
 )
 
+
+
 @router.post('/{product_id}', response_model=CartDisplay)
 async def create_cart(
-    current_user: Annotated[UserDisplay, Depends(JwtHandler.get_current_active_user)],
+    current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
     product_id: str = Path(),
     request: CartCreateBase = Body()
 ):
@@ -22,6 +24,6 @@ async def create_cart(
 
 @router.get('/', response_model=UserCartDisplay)
 async def get_user_cart(
-    current_user: Annotated[UserDisplay, Depends(JwtHandler.get_current_active_user)]
+    current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)]
 ):
     return db_cart.get_user_cart(current_user.id)

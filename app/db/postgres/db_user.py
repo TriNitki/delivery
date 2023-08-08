@@ -1,7 +1,7 @@
 from sqlalchemy.orm.session import Session
 import uuid
 
-from ...schemas.user import UserCreateBase, UserUpdateBase
+from ...schemas.user import UserCreateBase, UserUpdateBase, LoginBase
 from .models import DbUser
 from ...utils.hash import Hash
 

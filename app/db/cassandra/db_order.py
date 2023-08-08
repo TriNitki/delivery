@@ -8,7 +8,7 @@ from ...db.database import get_pg_db
 from ..postgres import db_product
 
 def create_order(id: UUID, product_id: str, request: OrderCreateBase) -> DbOrder:
-    creation_datetime = datetime.now() if request.creation_datetime is None else request.creation_datetime
+    creation_datetime = datetime.utcnow() if request.creation_datetime is None else request.creation_datetime
     db = get_pg_db()
     product = db_product.get_product(next(db), product_id)
     

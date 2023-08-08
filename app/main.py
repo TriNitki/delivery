@@ -10,8 +10,8 @@ from .config import settings
 
 
 app = FastAPI()
+# app.include_router(user.router)
 app.include_router(auth.router)
-app.include_router(user.router)
 app.include_router(order.router)
 app.include_router(cart.router)
 app.include_router(favorite.router)
