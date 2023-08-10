@@ -4,10 +4,12 @@ from sqlalchemy.orm import sessionmaker
 
 from cassandra.cqlengine.connection import register_connection, set_default_connection
 from cassandra.cluster import Cluster
-from cassandra.auth import PlainTextAuthProvider
+
+import redis
+
 from ..config import settings
  
-# Postgres config
+# Postgres implementation
 SQLALCHEMY_DATABASE_URL = settings.POSTGRES_URL
 
 engine = create_engine(
@@ -19,7 +21,7 @@ Base = declarative_base()
 
 def get_pg_db():
     """
-    Returns the session generator for the `Postgres` database
+    Returns the session for the `Postgres` database
     """
     
     db = SessionLocal()
@@ -28,7 +30,7 @@ def get_pg_db():
     finally:
         db.close()
 
-# Cassandra config
+# Cassandra implementation
 cluster = Cluster([settings.CASSANDRA_IP_ADDRESS], port=9042)
 
 def get_ac_db():
@@ -45,3 +47,14 @@ _session.execute(f"CREATE KEYSPACE IF NOT EXISTS {settings.CASSANDRA_KEYSPACE} W
 
 register_connection(str(_session), session=_session)
 set_default_connection(str(_session))
+
+# Redis implementation
+redis_client = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0, 
+                           password=settings.REDIS_PASSWORD, decode_responses=True)
+
+def get_rds_db():
+    """
+    Returns the session for the `Redis` database
+    """
+    
+    return redis_client

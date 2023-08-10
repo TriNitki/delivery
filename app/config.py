@@ -11,6 +11,10 @@ class Settings(BaseSettings):
     POSTGRES_URL: str
     CASSANDRA_KEYSPACE: str
     CASSANDRA_IP_ADDRESS: str
+    REDIS_HOST: str
+    REDIS_PORT: str
+    REDIS_PASSWORD: str
+    
     ENDPOINT: str
     
     model_config = SettingsConfigDict(env_file=".env", extra='allow')

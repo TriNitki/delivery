@@ -2,35 +2,39 @@ from jose import jwt, ExpiredSignatureError, JWTError
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from typing import Annotated
+from pydantic import EmailStr
 from fastapi import HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm.session import Session
+from uuid import UUID
 
 from ..config import settings
 from ..db.postgres import db_user
 from ..db.database import get_pg_db
-from ..schemas.user import UserDisplay
+from ..schemas.user import UserDisplay, Roles
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
-hasher = CryptContext(schemes=['bcrypt'])
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="user/login")
+hasher = CryptContext(schemes=['bcrypt'], deprecated='auto')
 SECRET_KEY = settings.SECRET_KEY
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 REFRESH_TOKEN_EXPIRE_MINUTES = settings.REFRESH_TOKEN_EXPIRE_MINUTES
 ALGORITHM = settings.ALGORITHM
 
-class Auth():
-    async def encode_password(password):
+class Auth:
+    async def encode_password(password: str):
         return hasher.hash(password)
     
     async def verify_password(password, encoded_password):
         return hasher.verify(password, encoded_password)
     
-    async def encode_access_token(email):
+    async def encode_access_token(email: EmailStr, id: UUID, role: Roles):
         payload = {
             'exp': datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
             'iat': datetime.utcnow(),
             'scope': 'access_token',
-            'sub': email
+            'sub': email,
+            'id': str(id),
+            'role': role
         }
         
         return jwt.encode(
@@ -39,7 +43,7 @@ class Auth():
             algorithm=ALGORITHM
         )
     
-    async def decode_access_token(token):
+    async def decode_access_token(token: str):
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
             if payload['scope'] == 'access_token':
@@ -50,12 +54,14 @@ class Auth():
         except JWTError:
             raise HTTPException(401, 'Invalid token')
     
-    async def encode_refresh_token(email):
+    async def encode_refresh_token(email: EmailStr, id: UUID, role: Roles):
         payload = {
             'exp': datetime.utcnow() + timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES),
             'iat': datetime.utcnow(),
             'scope': 'refresh_token',
-            'sub': email
+            'sub': email,
+            'id': str(id),
+            'role': role
         }
         
         return jwt.encode(
@@ -64,13 +70,15 @@ class Auth():
             algorithm=ALGORITHM
         )
     
-    async def refresh_token(token):
+    async def refresh_token(token: str):
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
             if payload['scope'] == 'refresh_token':
                 email = payload['sub']
-                new_access_token = await Auth.encode_access_token(email)
-                new_refresh_token = await Auth.encode_refresh_token(email)
+                id = payload['id']
+                role = payload['role']
+                new_access_token = await Auth.encode_access_token(email, id, role)
+                new_refresh_token = await Auth.encode_refresh_token(email, id, role) 
                 return new_access_token, new_refresh_token
             raise HTTPException(401, 'Scope for the token is invalid')
         except ExpiredSignatureError:
@@ -105,3 +113,13 @@ class Auth():
         if not current_user.is_active:
             raise HTTPException(400, "Inactive user")
         return current_user
+    
+    async def authenticate_user(email: EmailStr, plain_password: str, db: Session = Depends(get_pg_db)):
+        user = db_user.get_user_by_email(db, email)
+        if not user:
+            return False
+        
+        hashed_password = user.password
+        if not Auth.verify_password(hashed_password, plain_password):
+            return False
+        return user
