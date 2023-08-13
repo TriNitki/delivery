@@ -114,7 +114,7 @@ class Auth:
             raise HTTPException(400, "Inactive user")
         return current_user
     
-    async def authenticate_user(email: EmailStr, plain_password: str, db: Session = Depends(get_pg_db)):
+    def authenticate_user(email: EmailStr, plain_password: str, db: Session):
         user = db_user.get_user_by_email(db, email)
         if not user:
             return False

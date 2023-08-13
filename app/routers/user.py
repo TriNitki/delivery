@@ -21,7 +21,7 @@ security = HTTPBearer()
 
 
 @router.post('/signup', response_model=UserDisplay)
-def signup(
+async def signup(
     db: Annotated[Session, Depends(get_pg_db)],
     request: UserCreateBase = Body()
 ):
@@ -33,22 +33,22 @@ def signup(
     if db_user.get_user_by_email(db, request.email):
         raise HTTPException(409, 'Account already exist')
     
-    request.password = Auth.encode_password(request.password)
+    request.password = await Auth.encode_password(request.password)
     
     user = db_user.create_user(db, request)
     return user
 
 @router.post('/login', response_model=Token)
-def login(
+async def login(
     db: Annotated[Session, Depends(get_pg_db)],
     redis_db: Annotated[Redis, Depends(get_rds_db)],
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
 ):
-    user = Auth.authenticate_user(db, form_data.username, form_data.password)
+    user = Auth.authenticate_user(form_data.username, form_data.password, db)
     if not user:
         raise HTTPException(401, 'Invalid email or password')
-    access_token = Auth.encode_access_token(user.email, user.id, user.role)
-    refresh_token = Auth.encode_refresh_token(user.email, user.id, user.role)
+    access_token = await Auth.encode_access_token(user.email, user.id, user.role)
+    refresh_token = await Auth.encode_refresh_token(user.email, user.id, user.role)
     
     content = {'access_token': access_token, 'token_type': 'bearer'}
     response = JSONResponse(content=content)
@@ -59,13 +59,13 @@ def login(
     return response
 
 @router.post('/refresh', response_model=Token)
-def refresh_token(
+async def refresh_token(
     redis_db: Annotated[Redis, Depends(get_rds_db)],
     refresh_token: Annotated[str, Cookie(min_length=1)] = None
 ):
-    new_access_token, new_refresh_token = Auth.refresh_token(refresh_token)
+    new_access_token, new_refresh_token = await Auth.refresh_token(refresh_token)
     
-    payload = Auth.decode_access_token(new_access_token)
+    payload = await Auth.decode_access_token(new_access_token)
     old_refresh_token = redis_db.get(payload['id'])
     
     if old_refresh_token != refresh_token:
