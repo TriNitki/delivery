@@ -33,7 +33,9 @@ async def signup(
     if db_user.get_user_by_email(db, request.email):
         raise HTTPException(409, 'Account already exist')
     
-    request.password = await Auth.encode_password(request.password)
+    encoded_password = await Auth.encode_password(request.password)
+    
+    request.password = encoded_password
     
     user = db_user.create_user(db, request)
     return user
@@ -44,7 +46,7 @@ async def login(
     redis_db: Annotated[Redis, Depends(get_rds_db)],
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
 ):
-    user = Auth.authenticate_user(form_data.username, form_data.password, db)
+    user = await Auth.authenticate_user(form_data.username, form_data.password, db)
     if not user:
         raise HTTPException(401, 'Invalid email or password')
     access_token = await Auth.encode_access_token(user.email, user.id, user.role)

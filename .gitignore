@@ -3,3 +3,4 @@
 *env
 *.vscode
 *.drawio
+.pytest_cache

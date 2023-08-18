@@ -20,12 +20,24 @@ ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 REFRESH_TOKEN_EXPIRE_MINUTES = settings.REFRESH_TOKEN_EXPIRE_MINUTES
 ALGORITHM = settings.ALGORITHM
 
-class Auth:
+class Auth():
     async def encode_password(password: str):
         return hasher.hash(password)
     
-    async def verify_password(password, encoded_password):
+    async def verify_password(password: str, encoded_password: str):
         return hasher.verify(password, encoded_password)
+    
+    async def authenticate_user(email: EmailStr, plain_password: str, db: Session):
+        user = db_user.get_user_by_email(db, email)
+        
+        if not user:
+            return False
+        
+        hashed_password = user.password
+        
+        if not await Auth.verify_password(plain_password, hashed_password):
+            return False
+        return user
     
     async def encode_access_token(email: EmailStr, id: UUID, role: Roles):
         payload = {
@@ -114,12 +126,4 @@ class Auth:
             raise HTTPException(400, "Inactive user")
         return current_user
     
-    def authenticate_user(email: EmailStr, plain_password: str, db: Session):
-        user = db_user.get_user_by_email(db, email)
-        if not user:
-            return False
-        
-        hashed_password = user.password
-        if not Auth.verify_password(hashed_password, plain_password):
-            return False
-        return user
+    

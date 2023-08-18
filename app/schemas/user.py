@@ -23,7 +23,10 @@ class UserCreateBase(BaseModel):
     full_name: str
     password: constr(min_length=4)
     password_confirm: constr(min_length=4)
-    phone_number: str
+    phone_number: constr(
+            strip_whitespace=True,
+            pattern=r"^(\+7|8)[0-9]{10}$",
+        )
     gender: Genders
     date_of_birth: datetime
     city: str
