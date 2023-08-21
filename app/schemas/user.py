@@ -30,7 +30,7 @@ class UserCreateBase(BaseModel):
     gender: Genders
     date_of_birth: datetime
     city: str
-    currency_name: Currencies | None = None
+    currency_name: Currencies = Currencies.rub
     profile_picture: str
 
 class LoginBase(BaseModel):
@@ -48,8 +48,8 @@ class UserUpdateBase(BaseModel):
     profile_picture: str | None = None
     role: Roles | None = None
     balance: float | None = None
-    is_active: bool | None = None
-    is_registered: bool | None = None
+    is_active: bool = True
+    is_registered: bool = True
     
 class UserDisplay(BaseModel):
     id: UUID

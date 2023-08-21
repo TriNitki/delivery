@@ -1,5 +1,5 @@
 from polyfactory.factories.pydantic_factory import ModelFactory
-from polyfactory import PostGenerated, Use
+from polyfactory import PostGenerated
 
 from app.schemas import (user, cart, warehouse,
                          product, review, order) 
@@ -8,6 +8,9 @@ class UserFactory(ModelFactory[user.UserCreateBase]):
     __model__ = user.UserCreateBase
     
     password_confirm = PostGenerated(lambda cls, data: data['password'])
+
+class UserUpdateFactory(ModelFactory[user.UserUpdateBase]):
+    __model__ = user.UserUpdateBase
 
 class ProductFactory(ModelFactory[product.ProductCreateBase]):
     __model__ = product.ProductCreateBase
