@@ -2,15 +2,20 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     # jwt config
-    secret_key: str
-    algorithm: str
-    access_token_expire_minutes: int
+    SECRET_KEY: str
+    ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
+    REFRESH_TOKEN_EXPIRE_MINUTES: int
     
     # db config
-    postgres_url: str
-    cassandra_keyspace: str
-    cassandra_ip_address: str
-    endpoint: str
+    POSTGRES_URL: str
+    CASSANDRA_KEYSPACE: str
+    CASSANDRA_IP_ADDRESS: str
+    REDIS_HOST: str
+    REDIS_PORT: str
+    REDIS_PASSWORD: str
+    
+    ENDPOINT: str
     
     model_config = SettingsConfigDict(env_file=".env", extra='allow')
 

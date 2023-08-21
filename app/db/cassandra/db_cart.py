@@ -5,7 +5,7 @@ from .models import DbCart
 from ...schemas.cart import CartCreateBase
 
 def create_cart(id: UUID, product_id: str, request: CartCreateBase):
-    addition_datetime = datetime.now()
+    addition_datetime = datetime.utcnow()
     
     new_cart = DbCart.create(
         user_id=id,

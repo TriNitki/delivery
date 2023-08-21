@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Path, Query, Body
 import sqlalchemy.orm.session as sqlalchemy
 
 from ..db.database import get_pg_db
-from ..db.jwt import JwtHandler
+from ..utils.auth import Auth
 from ..db.postgres import db_product
 from ..schemas.product import ProductCreateBase, ProductDisplay
 from ..schemas.user import UserDisplay
@@ -14,9 +14,11 @@ router = APIRouter(
     tags=['product']
 )
 
+
+
 @router.post('/', response_model=ProductDisplay)
 async def create_product(
-    current_user: Annotated[UserDisplay, Depends(JwtHandler.get_current_active_user)],
+    current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
     db: Annotated[sqlalchemy.Session, Depends(get_pg_db)],
     request: ProductCreateBase = Body()
 ):
@@ -24,7 +26,7 @@ async def create_product(
 
 @router.get('/{product_id}', response_model=ProductDisplay)
 async def get_product(
-    current_user: Annotated[UserDisplay, Depends(JwtHandler.get_current_active_user)],
+    current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
     db: Annotated[sqlalchemy.Session, Depends(get_pg_db)],
     product_id: str = Path()
 ):
