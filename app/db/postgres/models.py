@@ -31,9 +31,19 @@ class DbUser(Base):
     is_registered = Column(Boolean, default=True, nullable=False)
     
     products = relationship("DbProduct", back_populates='seller')
+    favorites = relationship("DbFavorite", back_populates='user')
     # currency = relationship("DbCurrency", back_populates='user')
     
+class DbFavorite(Base):
+    __tablename__: str = 'favorites'
+    user_id = Column(UUID, ForeignKey('users.id'), primary_key=True)
+    product_id = Column(String(6), ForeignKey('products.id'), primary_key=True)
+    addition_datetime = Column(DateTime, default=datetime.utcnow, nullable=False)
     
+    user = relationship("DbUser", back_populates='favorites')
+    product = relationship("DbProduct", back_populates='favorited_by')
+    
+
 class DbCurrency(Base):
     __tablename__: str = 'currencies'
     name = Column(String(3), primary_key=True)
@@ -59,6 +69,7 @@ class DbProduct(Base):
     
     seller = relationship("DbUser", back_populates='products')
     stock = relationship("DbStock", back_populates='product', uselist=False)
+    favorited_by = relationship("DbFavorite", back_populates='product')
     
 class DbWarehouse(Base):
     __tablename__: str = 'warehouses'

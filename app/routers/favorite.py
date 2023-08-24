@@ -1,28 +1,34 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, Path, Query, Body
 import cassandra.cluster as cassandra
+from sqlalchemy.orm import Session
 
 from ..utils.auth import Auth
 from ..schemas.favorite import FavoriteDisplay, UserFavoritesDisplay
 from ..schemas.user import UserDisplay
-from ..db.cassandra import db_favorite
+# from ..db.cassandra import db_favorite
+from ..db.postgres import db_favorite
+from ..db.database import get_pg_db
+# from ..db.postgres import db_product
 
 router = APIRouter(
-    prefix='/user/favorite',
+    prefix='/user',
     tags=['favorite']
 )
 
 
-
-@router.post('/{product_id}', response_model=FavoriteDisplay)
+@router.post('/favorite/{product_id}', response_model=FavoriteDisplay)
 async def create_favorite(
     current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
+    db: Annotated[Session, Depends(get_pg_db)],
     product_id: str = Path()
 ):
-    return db_favorite.create_favorite(current_user.id, product_id)
+    return db_favorite.create_favorite(db, current_user.id, product_id)
+    # return db_favorite.create_favorite(current_user.id, product_id)
 
-@router.get('/', response_model=UserFavoritesDisplay)
+@router.get('/favorites', response_model=UserFavoritesDisplay, response_model_by_alias=False)
 async def get_user_favorites(
-    current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)]
-):
-    return db_favorite.get_user_favorites(current_user.id)
+    current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
+    db: Annotated[Session, Depends(get_pg_db)]
+):  
+    return db_favorite.get_favorites_by_user(db, current_user.id)

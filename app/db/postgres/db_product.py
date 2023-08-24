@@ -6,7 +6,7 @@ from ...db.postgres.models import DbProduct, DbStock
 from .db_stock import create_stock
 
 
-def create_product(db: Session, id: uuid.UUID, request: ProductCreateBase):
+def create_product(db: Session, seller_id: uuid.UUID, request: ProductCreateBase):
     new_product = DbProduct(
         price = request.price,
         name = request.name,
@@ -17,7 +17,7 @@ def create_product(db: Session, id: uuid.UUID, request: ProductCreateBase):
         discount = request.discount,
         description = request.description,
         image =  request.image,
-        seller_id = id
+        seller_id = seller_id
     )
     
     db.add(new_product)
@@ -30,3 +30,6 @@ def create_product(db: Session, id: uuid.UUID, request: ProductCreateBase):
 
 def get_product(db: Session, product_id: str) -> ProductDisplay:
     return db.query(DbProduct).filter(DbProduct.id == product_id).first()
+
+def get_products(db: Session, product_ids: list):
+    return db.query(DbProduct).filter(DbProduct.id.in_(product_ids)).all()
