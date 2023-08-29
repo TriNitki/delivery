@@ -10,6 +10,8 @@ from cassandra.cluster import Cluster
 
 import redis
 
+from elasticsearch import Elasticsearch
+
 from ..config import settings
  
 # Postgres implementation
@@ -61,3 +63,6 @@ def get_rds_db():
     """
     
     return redis_client
+
+# Elastic implementation
+elastic_client = Elasticsearch(hosts=[f'127.0.0.1:{settings.ELASTIC_PORT}'])

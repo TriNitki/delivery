@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     REDIS_HOST: str
     REDIS_PORT: str
     REDIS_PASSWORD: str
+    ELASTIC_PORT: str
     
     ENDPOINT: str
     
