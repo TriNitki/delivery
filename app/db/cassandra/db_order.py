@@ -13,7 +13,7 @@ def create_order(id: UUID, product_id: str, request: OrderCreateBase) -> DbOrder
     product = db_product.get_product(next(db), product_id)
     
     '''
-    Replace `delivery_datetime` and `estimated_delivery_time` values for not had coded variants
+    Replace `delivery_datetime` and `estimated_delivery_time` values for not had hard coded variants
     '''
     
     new_order = DbOrder.create(

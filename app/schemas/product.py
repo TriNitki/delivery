@@ -55,4 +55,11 @@ class ProductDisplay(BaseModel):
     seller_id: UUID
     stock: Stock
     
-    
+class ProductSearchDisplay(BaseModel):
+    id: str | None = None
+    name: str | None = None
+    price: Decimal | None = None
+    image: str | None = None
+
+class ProductSearchResult(BaseModel):
+    products: List[ProductSearchDisplay] | None = []

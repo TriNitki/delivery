@@ -1,5 +1,7 @@
 from uuid import UUID
 from sqlalchemy.orm.session import Session
+from sqlalchemy import and_
+from fastapi import HTTPException
 
 from .models import DbFavorite, DbUser
 
@@ -14,6 +16,17 @@ def create_favorite(db: Session, user_id: UUID, product_id: str):
     db.refresh(new_favorite)
     
     return new_favorite
+
+def delete_favorite(db: Session, user_id: UUID, product_id: str):
+    favorite = db.query(DbFavorite).filter(and_(DbFavorite.user_id == user_id, DbFavorite.product_id == product_id)).first()
+    if not favorite:
+        raise HTTPException(
+            status_code=404,
+            detail='The favorited product was not found '
+        )
+    
+    db.delete(favorite)
+    db.commit()
 
 def get_favorites_by_user(db: Session, user_id: UUID):
     return db.query(DbUser).filter(DbUser.id == user_id).first()

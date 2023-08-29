@@ -6,10 +6,8 @@ from sqlalchemy.orm import Session
 from ..utils.auth import Auth
 from ..schemas.favorite import FavoriteDisplay, UserFavoritesDisplay
 from ..schemas.user import UserDisplay
-# from ..db.cassandra import db_favorite
 from ..db.postgres import db_favorite
 from ..db.database import get_pg_db
-# from ..db.postgres import db_product
 
 router = APIRouter(
     prefix='/user',
@@ -24,7 +22,14 @@ async def create_favorite(
     product_id: str = Path()
 ):
     return db_favorite.create_favorite(db, current_user.id, product_id)
-    # return db_favorite.create_favorite(current_user.id, product_id)
+
+@router.delete('/favorite/{product_id}', response_model=None)
+async def create_favorite(
+    current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
+    db: Annotated[Session, Depends(get_pg_db)],
+    product_id: str = Path()
+):
+    return db_favorite.delete_favorite(db, current_user.id, product_id)
 
 @router.get('/favorites', response_model=UserFavoritesDisplay, response_model_by_alias=False)
 async def get_user_favorites(
