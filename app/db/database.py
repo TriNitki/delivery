@@ -66,3 +66,10 @@ def get_rds_db():
 
 # Elastic implementation
 elastic_client = Elasticsearch(hosts=[f'{settings.WEB_DOMAIN}:{settings.ELASTIC_PORT}'])
+
+def get_es_db():
+    """
+    Returns the session for the `Elastic search` database
+    """
+    
+    return elastic_client

@@ -5,7 +5,8 @@ import sqlalchemy.orm.session as sqlalchemy
 from ..db.database import get_pg_db
 from ..utils.auth import Auth
 from ..db.postgres import db_product
-from ..schemas.product import ProductCreateBase, ProductDisplay, ProductSearchResult
+from ..db.elastic import product_autocomplete as product_ac
+from ..schemas.product import ProductCreateBase, ProductDisplay
 from ..schemas.user import UserDisplay
 
 
@@ -20,7 +21,9 @@ async def create_product(
     db: Annotated[sqlalchemy.Session, Depends(get_pg_db)],
     request: ProductCreateBase = Body()
 ):
-    return db_product.create_product(db, current_user.id, request)
+    new_product = db_product.create_product(db, current_user.id, request)
+    product_ac.add_product(new_product)
+    return new_product
 
 @router.get('/product/{product_id}', response_model=ProductDisplay)
 async def get_product(
@@ -29,3 +32,4 @@ async def get_product(
     product_id: str = Path()
 ):
     return db_product.get_product(db, product_id)
+

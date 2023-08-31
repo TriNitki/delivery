@@ -63,3 +63,8 @@ class ProductSearchDisplay(BaseModel):
 
 class ProductSearchResult(BaseModel):
     products: List[ProductSearchDisplay] | None = []
+
+class ProductAutoComleteSearch(BaseModel):
+    name: str
+    brand: str
+    description: str
