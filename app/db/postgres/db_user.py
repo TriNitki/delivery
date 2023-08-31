@@ -34,5 +34,11 @@ def update_user(db: Session, id: uuid.UUID, request: UserUpdateBase):
     db.commit()
     return user.one()
 
+def deactivate_user(db: Session, id: uuid.UUID):
+    user = db.query(DbUser).filter(DbUser.id == id)
+    user.update({DbUser.is_active: False})
+    
+    db.commit()
+
 def get_user_by_email(db: Session, email: str):
     return db.query(DbUser).filter_by(email=email).first()

@@ -39,17 +39,15 @@ class LoginBase(BaseModel):
 
 class UserUpdateBase(BaseModel):
     full_name: str | None = None
-    password: str | None = None
-    phone_number: str | None = None
+    phone_number: constr(
+            strip_whitespace=True,
+            pattern=r"^(\+7|8)[0-9]{10}$",
+        ) | None = None
     gender: Genders | None = None
     date_of_birth: datetime | None = None
     city: str | None = None
     currency_name: Currencies | None = None
     profile_picture: str | None = None
-    role: Roles | None = None
-    balance: float | None = None
-    is_active: bool = True
-    is_registered: bool = True
     
 class UserDisplay(BaseModel):
     id: UUID

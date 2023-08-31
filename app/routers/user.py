@@ -101,5 +101,4 @@ def user_deactivate(
     current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
     db: Annotated[Session, Depends(get_pg_db)]
 ):
-    db_user.update_user(db, current_user.id, UserUpdateBase(is_active=False))
-    return None
+    return db_user.deactivate_user(db, current_user.id)

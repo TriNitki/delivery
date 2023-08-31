@@ -6,6 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     entrypoint: ["tail", "-f", "/dev/null"]
+    container_name: web
     volumes:
       - .:/app
     ports:
@@ -14,7 +15,8 @@ services:
       - POSTGRES_URL=${DOCKER_POSTGRES_URL}
       - CASSANDRA_IP_ADDRESS=${DOCKER_CASSANDRA_IP_ADDRESS}
       - CASSANDRA_KEYSPACE=${CASSANDRA_KEYSPACE}
-      - ENDPOINT=${DOCKER_ENDPOINT}
+      - WEB_DOMAIN=${DOCKER_WEB_DOMAIN}
+      - WEB_PORT=${DOCKER_WEB_PORT}
       - REDIS_HOST=${REDIS_DOCKER_HOST}
       - REDIS_PORT=${DOCKER_REDIS_PORT}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
@@ -31,15 +33,15 @@ services:
     
 
   cas:
-    container_name: cas
     image: cassandra:latest
+    container_name: cas
     ports:
-      - 9042:9042
+      - ${CASSANDRA_PORT}:${CASSANDRA_PORT}
     environment:
-      - CASSANDRA_START_RPC=${DOCKER_CASSANDRA_START_RPC}
-      - CASSANDRA_CLUSTER_NAME=${DOCKER_CASSANDRA_CLUSTER_NAME}
-      - CASSANDRA_ENDPOINT_SNITCH=${DOCKER_CASSANDRA_ENDPOINT_SNITCH}
-      - CASSANDRA_DC=${DOCKER_CASSANDRA_DC}
+      - CASSANDRA_START_RPC=${CASSANDRA_START_RPC}
+      - CASSANDRA_CLUSTER_NAME=${CASSANDRA_CLUSTER_NAME}
+      - CASSANDRA_ENDPOINT_SNITCH=${CASSANDRA_ENDPOINT_SNITCH}
+      - CASSANDRA_DC=${CASSANDRA_DC}
     networks:
       testing_net:
         ipv4_address: 172.28.1.2
@@ -47,15 +49,15 @@ services:
 
   db:
     image: postgres:15-alpine
+    container_name: postgresql
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    container_name: postgresql_delivery
     ports:
-      - "5433:5432"
+      - ${POSTGRES_PORT}:${DOCKER_POSTGRES_PORT}
     environment:
-      - POSTGRES_USER=${DOCKER_POSTGRES_USER}
-      - POSTGRES_PASSWORD=${DOCKER_POSTGRES_PASSWORD}
-      - POSTGRES_DB=${DOCKER_POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
     networks:
       testing_net:
         ipv4_address: 172.28.1.4
@@ -63,9 +65,10 @@ services:
 
   cache:
     image: redis:latest
+    container_name: redis
     restart: always
     ports:
-      - '6380:6379'
+      - ${REDIS_PORT}:${DOCKER_REDIS_PORT}
     command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
     networks:
       testing_net:
@@ -75,6 +78,10 @@ services:
   es01:
     image: elasticsearch:7.17.12
     container_name: es01
+    volumes:
+      - data01:/usr/share/elasticsearch/data
+    ports:
+      - ${ELASTIC_PORT}:${DOCKER_ELASTIC_PORT}
     environment:
       - xpack.security.enabled=false
       - discovery.type=single-node
@@ -83,22 +90,19 @@ services:
       memlock:
         soft: -1
         hard: -1
-    volumes:
-      - data01:/usr/share/elasticsearch/data
-    ports:
-      - 9200:9200
   
+
   kibana:
     image: kibana:7.17.12
     container_name: kibana
-    environment:
-      - 'ELASTICSEARCH_HOSTS=http://es01:9200'
-    depends_on:
-      - es01
     volumes:
       - kibana-data:/usr/share/kibana/data
     ports:
-      - 5602:5601
+      - ${KIBANA_PORT}:${DOCKER_KIBANA_PORT}
+    environment:
+      - 'ELASTICSEARCH_HOSTS=http://es01:${DOCKER_ELASTIC_PORT}'
+    depends_on:
+      - es01
     restart: always
 
 volumes:

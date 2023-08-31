@@ -16,9 +16,13 @@ class Settings(BaseSettings):
     REDIS_PASSWORD: str
     ELASTIC_PORT: str
     
-    ENDPOINT: str
+    WEB_DOMAIN: str
+    WEB_PORT: str
     
     model_config = SettingsConfigDict(env_file=".env", extra='allow')
+    
+    def get_web_url(self):
+        return f'{self.WEB_DOMAIN}:{self.WEB_PORT}'
 
 settings = Settings()
 
