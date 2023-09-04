@@ -64,7 +64,12 @@ class ProductSearchDisplay(BaseModel):
 class ProductSearchResult(BaseModel):
     products: List[ProductSearchDisplay] | None = []
 
+class ProductSuggest(BaseModel):
+    input: List[str]
+    weight: int
+
 class ProductAutoComleteSearch(BaseModel):
     name: str
     brand: str
     description: str
+    suggest: ProductSuggest
