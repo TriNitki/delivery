@@ -25,7 +25,6 @@ def add_product(product: DbProduct, client: Elasticsearch = get_es_db()):
 def autocomplete(text: str, client: Elasticsearch = get_es_db()):
     request = text.split()
     prefix = request[-1]
-    before_prefix = ' '.join(request[:-1])
     
     suggest_dictionary = {"suggests" : {
         "prefix": prefix,
@@ -43,5 +42,5 @@ def autocomplete(text: str, client: Elasticsearch = get_es_db()):
     
     options = [option['text'] for option in res.body['suggest']['suggests'][0]['options']]
     
-    suggestions = [f"{before_prefix} {option}" for option in options]
+    suggestions = [' '.join(request[:-1].append(option)) for option in options]
     return suggestions
