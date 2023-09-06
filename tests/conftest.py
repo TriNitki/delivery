@@ -6,7 +6,7 @@ from datetime import datetime
 from starlette.types import ASGIApp
 from fastapi.testclient import TestClient
 
-from app.schemas.user import Genders, Currencies
+from app.schemas.unspecified import RussianCitiesEnum, Genders, Currencies
 
 class Client(TestClient):
     def __init__(self, app: ASGIApp, base_url: str = "http://testserver", raise_server_exceptions: bool = True, root_path: str = "", backend: str = "asyncio", backend_options: typing.Dict[str, typing.Any] | None = None, cookies: httpx._client.CookieTypes = None, headers: typing.Dict[str, str] = None) -> None:
@@ -47,6 +47,6 @@ class UserCompareBase(BaseModel):
         )
     gender: Genders
     date_of_birth: datetime
-    city: str
+    city: RussianCitiesEnum
     currency_name: Currencies = Currencies.rub
     profile_picture: str

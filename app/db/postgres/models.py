@@ -1,10 +1,11 @@
-from sqlalchemy import Column, UUID, String, Boolean, DateTime, Integer, DECIMAL, SmallInteger, event, func
+from sqlalchemy import Column, UUID, String, Boolean, DateTime, Integer, DECIMAL, SmallInteger, event, func, Enum
 from sqlalchemy.sql.schema import ForeignKey
 from datetime import datetime
 from uuid import uuid4
 from sqlalchemy.orm import relationship
 
-from ...db.database import Base, SessionLocal
+from ..database import Base, SessionLocal
+from ...schemas.unspecified import RussianCitiesEnum, Genders, Roles
 
 def generate_padded_value(context):
     session = SessionLocal.object_session(context)
@@ -18,12 +19,12 @@ class DbUser(Base):
     email = Column(String, primary_key=True, unique=True, nullable=False)
     full_name = Column(String, nullable=False)
     phone_number = Column(String, nullable=True)
-    gender = Column(String, nullable=True)
+    gender = Column(Enum(Genders), nullable=True)
     date_of_birth = Column(DateTime, nullable=False)
-    city = Column(String, nullable=False)
+    city = Column(Enum(RussianCitiesEnum), nullable=False)
     currency_name = Column(String, default="RUB", nullable=False)
     profile_picture = Column(String, nullable=True)
-    role = Column(String, default="BUYER", nullable=False)
+    role = Column(Enum(Roles), default="BUYER", nullable=False)
     password = Column(String, nullable=False)
     balance = Column(DECIMAL, default=0, nullable=False)
     registration_datetime = Column(DateTime, default=datetime.utcnow, nullable=False)

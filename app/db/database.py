@@ -10,7 +10,7 @@ from cassandra.cluster import Cluster
 
 import redis
 
-from elasticsearch import Elasticsearch, BadRequestError
+from elasticsearch import Elasticsearch
 
 from ..config import settings
  
@@ -67,19 +67,9 @@ def get_rds_db():
 # Elastic implementation
 elastic_client = Elasticsearch(hosts=[f'{settings.WEB_DOMAIN}:{settings.ELASTIC_PORT}'])
 
-try:
-    elastic_client.indices.create(index='product_auto_complete', body={
-        "mappings": {
-            "properties": {
-                "brand": {"type": "text","fields": {"keyword": {"type": "keyword","ignore_above": 256}}},
-                "description": {"type": "text","fields": {"keyword": {"type": "keyword","ignore_above": 256}}},
-                "name": {"type": "text","fields": {"keyword": {"type": "keyword","ignore_above": 256}}},
-                "suggest": {"type": "completion"}
-                }
-            }
-        })
-except BadRequestError:
-    print("product_auto_complete: index already exists")
+from .elastic import indices
+
+indices.create_all_indices(elastic_client)
 
 def get_es_db():
     """

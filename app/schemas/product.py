@@ -1,14 +1,9 @@
-from pydantic import BaseModel, Extra
-from typing import List, Dict
+from .unspecified import CountriesEnum
+
+from pydantic import BaseModel
+from typing import List
 from decimal import Decimal
-from enum import Enum
-import json
 from uuid import UUID
-
-with open(r'app/static/countries.json') as f:
-    countries_dict = {country["name"]: country["name"] for country in json.load(f)}
-
-Countries = Enum('Countries', countries_dict)
 
 class Stock(BaseModel):
     units_in_stock: int
@@ -19,7 +14,7 @@ class Product(BaseModel):
     name: str
     price: Decimal
     weight: int
-    manufacturer_country: Countries
+    manufacturer_country: CountriesEnum
     category_name: str
     brand: str
     discount: int
@@ -32,7 +27,7 @@ class ProductCreateBase(BaseModel):
     name: str
     price: Decimal
     weight: int
-    manufacturer_country: Countries
+    manufacturer_country: CountriesEnum
     category_name: str
     brand: str
     discount: int | None = None
@@ -45,7 +40,7 @@ class ProductDisplay(BaseModel):
     name: str
     price: Decimal
     weight: int
-    manufacturer_country: Countries
+    manufacturer_country: CountriesEnum
     category_name: str
     brand: str
     discount: int

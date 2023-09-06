@@ -1,5 +1,4 @@
 from elasticsearch import Elasticsearch
-import json
 
 from ..database import get_es_db
 from ...schemas.product import ProductAutoComleteSearch, ProductSuggest
@@ -18,9 +17,7 @@ def add_product(product: DbProduct, client: Elasticsearch = get_es_db()):
         suggest = suggest
     )
     
-    print(document.model_dump())
-    
-    client.index(index="product_auto_complete", document=document.model_dump())
+    client.index(index="product_autocomplete", document=document.model_dump())
     
 def autocomplete(text: str, client: Elasticsearch = get_es_db()):
     request = text.split()
@@ -32,15 +29,16 @@ def autocomplete(text: str, client: Elasticsearch = get_es_db()):
             "field" : "suggest",
             "skip_duplicates": True
             }
-        }}
+        }
+    }
 
     query_dictionary = {'suggest' : suggest_dictionary}
     res = client.search(
-        index='product_auto_complete',
-        body=query_dictionary)
+        index='product_autocomplete',
+        body=query_dictionary
+    )
     
     
     options = [option['text'] for option in res.body['suggest']['suggests'][0]['options']]
-    
-    suggestions = [' '.join(request[:-1].append(option)) for option in options]
+    suggestions = [' '.join(request[:-1] + [option]) for option in options]
     return suggestions

@@ -1,22 +1,7 @@
 from pydantic import BaseModel, EmailStr, constr
 from uuid import UUID
 from datetime import datetime
-from enum import Enum
-
-class Roles(str, Enum):
-    admin = "ADMIN"
-    moderator = "MODERATOR"
-    seller = "SELLER"
-    buyer = "BUYER"
-
-class Genders(str, Enum):
-    male = "male"
-    female = "female"
-    
-class Currencies(str, Enum):
-    rub = "RUB"
-    usd = "USD"
-    eur = "EUR"
+from .unspecified import Genders, Currencies, Roles, RussianCitiesEnum
 
 class UserCreateBase(BaseModel):
     email: EmailStr
@@ -29,7 +14,7 @@ class UserCreateBase(BaseModel):
         )
     gender: Genders
     date_of_birth: datetime
-    city: str
+    city: RussianCitiesEnum
     currency_name: Currencies = Currencies.rub
     profile_picture: str
 
@@ -45,7 +30,7 @@ class UserUpdateBase(BaseModel):
         ) | None = None
     gender: Genders | None = None
     date_of_birth: datetime | None = None
-    city: str | None = None
+    city: RussianCitiesEnum | None = None
     currency_name: Currencies | None = None
     profile_picture: str | None = None
     
@@ -56,7 +41,7 @@ class UserDisplay(BaseModel):
     phone_number: str
     gender: Genders
     date_of_birth: datetime
-    city: str
+    city: RussianCitiesEnum
     currency_name: Currencies
     profile_picture: str
     role: Roles
