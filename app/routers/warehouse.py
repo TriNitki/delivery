@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, Path, Query, Body
+from fastapi import APIRouter, Depends, Body
 import sqlalchemy.orm.session as sqlalchemy
 
 from ..db.database import get_pg_db

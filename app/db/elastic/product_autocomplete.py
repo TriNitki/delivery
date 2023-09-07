@@ -39,6 +39,8 @@ def autocomplete(text: str, client: Elasticsearch = get_es_db()):
     )
     
     
-    options = [option['text'] for option in res.body['suggest']['suggests'][0]['options']]
+    options = [
+        option['text'] for option in res.body['suggest']['suggests'][0]['options']
+    ]
     suggestions = [' '.join(request[:-1] + [option]) for option in options]
     return suggestions

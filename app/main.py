@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 
-from .routers import autocomplete, review, product, user, warehouse, favorite, order, cart
+from .routers import (autocomplete, review, product, user,
+                      warehouse, favorite, order, cart)
 from .db import sync_all
 
 app = FastAPI()

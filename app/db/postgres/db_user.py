@@ -1,6 +1,5 @@
 from sqlalchemy.orm.session import Session
 import uuid
-from enum import Enum
 
 from ...schemas.user import UserCreateBase, UserUpdateBase
 from .models import DbUser

@@ -12,11 +12,15 @@ def autocomplete(text: str, client: Elasticsearch = get_es_db()):
         }
     }
     
-    query_dictionary = {'suggest' : suggest_dictionary}
+    query_dictionary = {
+        'suggest' : suggest_dictionary
+        }
     res = client.search(
         index='country_autocomplete',
         body=query_dictionary
     )
     
-    options = [option['text'] for option in res.body['suggest']['suggests'][0]['options']]
+    options = [
+        option['text'] for option in res.body['suggest']['suggests'][0]['options']
+    ]
     return options

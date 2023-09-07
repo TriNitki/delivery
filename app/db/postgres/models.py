@@ -1,11 +1,12 @@
-from sqlalchemy import Column, UUID, String, Boolean, DateTime, Integer, DECIMAL, SmallInteger, event, func, Enum
+from sqlalchemy import (Column, UUID, String, Boolean, DateTime, Integer, 
+                        DECIMAL, SmallInteger, event, func, Enum)
 from sqlalchemy.sql.schema import ForeignKey
 from datetime import datetime
 from uuid import uuid4
 from sqlalchemy.orm import relationship
 
 from ..database import Base, SessionLocal
-from ...schemas.unspecified import RussianCitiesEnum, Genders, Roles
+from ...schemas.unspecified import RussianCitiesEnum, Genders, Roles, CountriesEnum
 
 def generate_padded_value(context):
     session = SessionLocal.object_session(context)
@@ -47,7 +48,7 @@ class DbFavorite(Base):
 
 class DbCurrency(Base):
     __tablename__: str = 'currencies'
-    name = Column(String(3), primary_key=True)
+    name = Column(Enum(CountriesEnum), primary_key=True)
     rate_to_usd = Column(DECIMAL, nullable=False)
     last_update = Column(DateTime, nullable=False)
     
@@ -59,7 +60,7 @@ class DbProduct(Base):
     name = Column(String(32), nullable=False)
     price = Column(DECIMAL, nullable=False)
     weight = Column(Integer, nullable=False)
-    manufacturer_country = Column(String, nullable=False)
+    manufacturer_country = Column(Enum(CountriesEnum), nullable=False)
     category_name = Column(String, nullable=False)
     brand = Column(String(32), nullable=False)
     discount = Column(SmallInteger, default=0)

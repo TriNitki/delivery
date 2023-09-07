@@ -18,7 +18,9 @@ def create_favorite(db: Session, user_id: UUID, product_id: str):
     return new_favorite
 
 def delete_favorite(db: Session, user_id: UUID, product_id: str):
-    favorite = db.query(DbFavorite).filter(and_(DbFavorite.user_id == user_id, DbFavorite.product_id == product_id)).first()
+    favorite = db.query(DbFavorite).filter(
+        and_(DbFavorite.user_id == user_id, DbFavorite.product_id == product_id)
+    ).first()
     if not favorite:
         raise HTTPException(
             status_code=404,

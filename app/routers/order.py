@@ -1,6 +1,5 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, Path, Query, Body
-import cassandra.cluster as cassandra
 from datetime import datetime
 
 from ..utils.auth import Auth

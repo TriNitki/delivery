@@ -56,7 +56,9 @@ async def login(
     response = JSONResponse(content=content)
     response.set_cookie(key="refresh_token", value=refresh_token)
     
-    redis_db.set(str(user.id), refresh_token, ex=settings.REFRESH_TOKEN_EXPIRE_MINUTES*60)
+    redis_db.set(
+        str(user.id), refresh_token, ex=settings.REFRESH_TOKEN_EXPIRE_MINUTES*60
+    )
     
     return response
 
@@ -77,7 +79,9 @@ async def refresh_token(
     response = JSONResponse(content=content)
     response.set_cookie(key="refresh_token", value=new_refresh_token)
     
-    redis_db.set(payload['id'], new_refresh_token, ex=settings.REFRESH_TOKEN_EXPIRE_MINUTES*60)
+    redis_db.set(
+        payload['id'], new_refresh_token, ex=settings.REFRESH_TOKEN_EXPIRE_MINUTES*60
+    )
     
     return response
 

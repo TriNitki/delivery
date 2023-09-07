@@ -1,6 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, Path, Query, Body
-import cassandra.cluster as cassandra
+from fastapi import APIRouter, Depends, Path
 from sqlalchemy.orm import Session
 
 from ..utils.auth import Auth
@@ -24,7 +23,7 @@ async def create_favorite(
     return db_favorite.create_favorite(db, current_user.id, product_id)
 
 @router.delete('/favorite/{product_id}', response_model=None)
-async def create_favorite(
+async def delete_favorite(
     current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
     db: Annotated[Session, Depends(get_pg_db)],
     product_id: str = Path()

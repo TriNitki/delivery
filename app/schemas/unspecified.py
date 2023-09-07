@@ -1,8 +1,11 @@
 from ..utils.static import static
 from enum import Enum
 
-CountriesEnum = Enum('Countries', static.countries_dict)
-RussianCitiesEnum = Enum('RussianCities', static.cities_dict)
+countries_dict  = {country["name"]: country["name"] for country in static.countries}
+cities_dict     = {city["name"]: city["name"] for city in static.cities}
+
+CountriesEnum = Enum('Countries', countries_dict)
+RussianCitiesEnum = Enum('RussianCities', cities_dict)
 
 class Roles(str, Enum):
     admin = "ADMIN"

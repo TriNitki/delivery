@@ -8,12 +8,14 @@ from ...db.database import get_pg_db
 from ..postgres import db_product
 
 def create_order(id: UUID, product_id: str, request: OrderCreateBase) -> DbOrder:
-    creation_datetime = datetime.utcnow() if request.creation_datetime is None else request.creation_datetime
+    creation_datetime = datetime.utcnow() \
+        if request.creation_datetime is None else request.creation_datetime
     db = get_pg_db()
     product = db_product.get_product(next(db), product_id)
     
     '''
-    Replace `delivery_datetime` and `estimated_delivery_time` values for not had hard coded variants
+    Replace `delivery_datetime` and `estimated_delivery_time` values 
+    for not had hard coded variants
     '''
     
     new_order = DbOrder.create(
@@ -41,7 +43,11 @@ def create_order(id: UUID, product_id: str, request: OrderCreateBase) -> DbOrder
     return __to_order_display(new_order)
 
 def get_order(id: UUID, product_id: str, creation_datetime: datetime):
-    order = DbOrder.get(user_id = id, product_id = product_id, creation_datetime = creation_datetime)
+    order = DbOrder.get(
+        user_id = id, 
+        product_id = product_id, 
+        creation_datetime = creation_datetime
+    )
     
     return __to_order_display(order)
 

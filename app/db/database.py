@@ -1,7 +1,4 @@
 import os
-
-os.environ['CQLENG_ALLOW_SCHEMA_MANAGEMENT'] = '1'
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
@@ -12,7 +9,10 @@ import redis
 
 from elasticsearch import Elasticsearch
 
+from .elastic import indices
 from ..config import settings
+
+os.environ['CQLENG_ALLOW_SCHEMA_MANAGEMENT'] = '1'
  
 # Postgres implementation
 SQLALCHEMY_DATABASE_URL = settings.POSTGRES_URL
@@ -47,8 +47,10 @@ def get_ac_db():
     return session
 
 _session = get_ac_db()
-_session.execute(f"CREATE KEYSPACE IF NOT EXISTS {settings.CASSANDRA_KEYSPACE} WITH REPLICATION = "
-                "{ 'class' : 'SimpleStrategy', 'replication_factor' : 2 };")
+_session.execute(
+    f"""CREATE KEYSPACE IF NOT EXISTS {settings.CASSANDRA_KEYSPACE} 
+    WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 2 };"""
+)
 
 register_connection(str(_session), session=_session)
 set_default_connection(str(_session))
@@ -66,8 +68,6 @@ def get_rds_db():
 
 # Elastic implementation
 elastic_client = Elasticsearch(hosts=[f'{settings.WEB_DOMAIN}:{settings.ELASTIC_PORT}'])
-
-from .elastic import indices
 
 indices.create_all_indices(elastic_client)
 

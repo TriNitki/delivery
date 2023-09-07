@@ -2,7 +2,7 @@ from sqlalchemy.orm.session import Session
 import uuid
 
 from ...schemas.product import ProductCreateBase, ProductDisplay
-from ...db.postgres.models import DbProduct, DbStock
+from ...db.postgres.models import DbProduct
 from .db_stock import create_stock
 
 
@@ -24,7 +24,9 @@ def create_product(db: Session, seller_id: uuid.UUID, request: ProductCreateBase
     db.commit()
     db.refresh(new_product)
     
-    create_stock(db, new_product.id, request.stock.warehouse_id, request.stock.units_in_stock)
+    create_stock(
+        db, new_product.id, request.stock.warehouse_id, request.stock.units_in_stock
+    )
     
     return new_product
 
