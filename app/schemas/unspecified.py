@@ -1,8 +1,12 @@
 from ..utils.static import static
 from enum import Enum
 
-countries_dict  = {country["name"]: country["name"] for country in static.countries}
-cities_dict     = {city["name"]: city["name"] for city in static.cities}
+countries_dict: dict = {
+    country["name"]: country["name"] for country in static.countries
+}
+cities_dict: dict = {
+    city["name"]: city["name"] for city in static.cities
+}
 
 CountriesEnum = Enum('Countries', countries_dict)
 RussianCitiesEnum = Enum('RussianCities', cities_dict)

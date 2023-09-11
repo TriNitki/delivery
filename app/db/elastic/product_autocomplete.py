@@ -35,7 +35,7 @@ def autocomplete(text: str, client: Elasticsearch = get_es_db()):
     query_dictionary = {'suggest' : suggest_dictionary}
     res = client.search(
         index='product_autocomplete',
-        body=query_dictionary
+        query=query_dictionary
     )
     
     

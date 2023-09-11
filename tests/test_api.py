@@ -53,7 +53,7 @@ class TestUser:
         assert response_body
         
         assert UserDisplay(**response_body)
-        assert UserCompareBase(**new_user.model_dump()) == UserCompareBase(**response_body)
+        assert UserCompareBase(**new_user.model_dump()) == UserCompareBase(**response_body)  # noqa: E501
     
     def test_edit_me(self, new_user: UserCreateBase, user_update_body: UserUpdateBase):
         # Empty user update
@@ -64,17 +64,19 @@ class TestUser:
         assert response_body
         
         assert UserDisplay(**response_body)
-        assert UserCompareBase(**new_user.model_dump()) == UserCompareBase(**response_body)
+        assert UserCompareBase(**new_user.model_dump()) == UserCompareBase(**response_body)  # noqa: E501
         
         # Random user update
-        response = self.client.patch('/user/me', content=user_update_body.model_dump_json())
+        response = self.client.patch(
+            '/user/me', content=user_update_body.model_dump_json()
+        )
         assert response.status_code == 200
         
         response_body = json.loads(response.read())
         assert response_body
         
         assert UserDisplay(**response_body)
-        assert UserCompareBase(**new_user.model_dump()) != UserCompareBase(**response_body)
+        assert UserCompareBase(**new_user.model_dump()) != UserCompareBase(**response_body)  # noqa: E501
     
     def test_deactivate_me(self):
         response = self.client.delete('/user/me')

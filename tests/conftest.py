@@ -9,8 +9,21 @@ from fastapi.testclient import TestClient
 from app.schemas.unspecified import RussianCitiesEnum, Genders, Currencies
 
 class Client(TestClient):
-    def __init__(self, app: ASGIApp, base_url: str = "http://testserver", raise_server_exceptions: bool = True, root_path: str = "", backend: str = "asyncio", backend_options: typing.Dict[str, typing.Any] | None = None, cookies: httpx._client.CookieTypes = None, headers: typing.Dict[str, str] = None) -> None:
-        super().__init__(app, base_url, raise_server_exceptions, root_path, backend, backend_options, cookies, headers)
+    def __init__(
+        self, 
+        app: ASGIApp, 
+        base_url: str = "http://testserver", 
+        raise_server_exceptions: bool = True, 
+        root_path: str = "", 
+        backend: str = "asyncio", 
+        backend_options: typing.Dict[str, typing.Any] | None = None, 
+        cookies: httpx._client.CookieTypes = None, 
+        headers: typing.Dict[str, str] = None
+    ) -> None:
+        super().__init__(
+            app, base_url, raise_server_exceptions, root_path, 
+            backend, backend_options, cookies, headers
+        )
     
     def login_user(self, username: str, password: str):
         data = {

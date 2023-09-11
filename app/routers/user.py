@@ -65,8 +65,11 @@ async def login(
 @router.post('/refresh', response_model=Token)
 async def refresh_token(
     redis_db: Annotated[Redis, Depends(get_rds_db)],
-    refresh_token: Annotated[str, Cookie(min_length=1)] = None
+    refresh_token: Annotated[str | None, Cookie(min_length=1)] = None
 ):
+    if refresh_token is None:
+        raise HTTPException(401, 'Invalid token')
+    
     new_access_token, new_refresh_token = await Auth.refresh_token(refresh_token)
     
     payload = await Auth.decode_access_token(new_access_token)

@@ -1,7 +1,7 @@
 from sqlalchemy.orm.session import Session
 import uuid
 
-from ...schemas.product import ProductCreateBase, ProductDisplay
+from ...schemas.product import ProductCreateBase
 from ...db.postgres.models import DbProduct
 from .db_stock import create_stock
 
@@ -30,7 +30,7 @@ def create_product(db: Session, seller_id: uuid.UUID, request: ProductCreateBase
     
     return new_product
 
-def get_product(db: Session, product_id: str) -> ProductDisplay:
+def get_product(db: Session, product_id: str):
     return db.query(DbProduct).filter(DbProduct.id == product_id).first()
 
 def get_products(db: Session, product_ids: list):
