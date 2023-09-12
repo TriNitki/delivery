@@ -40,5 +40,8 @@ def deactivate_user(db: Session, id: uuid.UUID):
     
     db.commit()
 
+def get_user_by_id(db: Session, id: uuid.UUID):
+    return db.query(DbUser).filter(DbUser.id == id).first()
+
 def get_user_by_email(db: Session, email: str):
     return db.query(DbUser).filter_by(email=email).first()

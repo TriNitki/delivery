@@ -47,10 +47,8 @@ def get_ac_db():
     return session
 
 _session = get_ac_db()
-_session.execute(
-    f"""CREATE KEYSPACE IF NOT EXISTS {settings.CASSANDRA_KEYSPACE} 
-    WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 2 };"""
-)
+_session.execute(f"CREATE KEYSPACE IF NOT EXISTS {settings.CASSANDRA_KEYSPACE} WITH REPLICATION = "
+                "{ 'class' : 'SimpleStrategy', 'replication_factor' : 2 };")
 
 register_connection(str(_session), session=_session)
 set_default_connection(str(_session))

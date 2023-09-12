@@ -16,17 +16,6 @@ class DbReview(Model):
     publication_datetime = columns.DateTime()
     rating = columns.SmallInt()
 
-class DbCart(Model):
-    __table_name__: str = 'carts'
-    __keyspace__: str = 'delivery'
-    session = get_ac_db()
-    session.default_fetch_size = 1000
-    
-    user_id = columns.UUID(primary_key=True)
-    product_id = columns.Text(primary_key=True, clustering_order='asc')
-    quantity = columns.Integer()
-    addition_datetime = columns.DateTime()
-
 class DbOrder(Model):
     __table_name__: str = 'orders'
     __keyspace__: str = 'delivery'

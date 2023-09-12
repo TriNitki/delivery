@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from ..utils.auth import Auth
 from ..schemas.favorite import FavoriteDisplay, UserFavoritesDisplay
 from ..schemas.user import UserDisplay
-from ..db.postgres import db_favorite
+from ..db.postgres import db_favorite, db_user
 from ..db.database import get_pg_db
 
 router = APIRouter(
@@ -30,9 +30,9 @@ async def delete_favorite(
 ):
     return db_favorite.delete_favorite(db, current_user.id, product_id)
 
-@router.get('/favorites', response_model=UserFavoritesDisplay, response_model_by_alias=False)
+@router.get('/favorites', response_model=UserFavoritesDisplay, response_model_by_alias=False)  # noqa: E501
 async def get_user_favorites(
     current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
     db: Annotated[Session, Depends(get_pg_db)]
 ):  
-    return db_favorite.get_favorites_by_user(db, current_user.id)
+    return db_user.get_user_by_id(db, current_user.id)

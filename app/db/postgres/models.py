@@ -33,7 +33,8 @@ class DbUser(Base):
     is_registered = Column(Boolean, default=True, nullable=False)
     
     products = relationship("DbProduct", back_populates='seller')
-    favorites = relationship("DbFavorite", back_populates='user')
+    favorites = relationship("DbFavorite")
+    cart = relationship("DbCart")
     # currency = relationship("DbCurrency", back_populates='user')
     
 class DbFavorite(Base):
@@ -42,9 +43,7 @@ class DbFavorite(Base):
     product_id = Column(String(6), ForeignKey('products.id'), primary_key=True)
     addition_datetime = Column(DateTime, default=datetime.utcnow, nullable=False)
     
-    user = relationship("DbUser", back_populates='favorites')
-    product = relationship("DbProduct", back_populates='favorited_by')
-    
+    product = relationship("DbProduct")
 
 class DbCurrency(Base):
     __tablename__: str = 'currencies'
@@ -71,8 +70,16 @@ class DbProduct(Base):
     
     seller = relationship("DbUser", back_populates='products')
     stock = relationship("DbStock", back_populates='product', uselist=False)
-    favorited_by = relationship("DbFavorite", back_populates='product')
+
+class DbCart(Base):
+    __tablename__: str = 'carts'
+    user_id = Column(UUID, ForeignKey('users.id'), primary_key=True)
+    product_id = Column(String(6), ForeignKey('products.id'), primary_key=True)
+    quantity = Column(Integer, nullable=False)
+    addition_datetime = Column(DateTime, default=datetime.utcnow)
     
+    product = relationship("DbProduct", uselist=False)
+
 class DbWarehouse(Base):
     __tablename__: str = 'warehouses'
     id = Column(Integer, primary_key=True, autoincrement=True, unique=True)

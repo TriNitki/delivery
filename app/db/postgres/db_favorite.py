@@ -3,7 +3,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy import and_
 from fastapi import HTTPException
 
-from .models import DbFavorite, DbUser
+from .models import DbFavorite
 
 def create_favorite(db: Session, user_id: UUID, product_id: str):
     new_favorite = DbFavorite(
@@ -29,6 +29,3 @@ def delete_favorite(db: Session, user_id: UUID, product_id: str):
     
     db.delete(favorite)
     db.commit()
-
-def get_favorites_by_user(db: Session, user_id: UUID):
-    return db.query(DbUser).filter(DbUser.id == user_id).first()

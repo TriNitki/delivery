@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List
 from datetime import datetime
 from uuid import UUID
@@ -18,5 +18,5 @@ class CartDisplay(BaseModel):
     product_id: str
 
 class UserCartDisplay(BaseModel):
-    user_id: UUID
+    user_id: UUID = Field(..., alias="id")
     cart: List[Cart] = []
