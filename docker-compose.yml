@@ -13,8 +13,9 @@ services:
       - 8008:8000
     environment:
       - POSTGRES_URL=${DOCKER_POSTGRES_URL}
-      - CASSANDRA_IP_ADDRESS=${DOCKER_CASSANDRA_IP_ADDRESS}
+      - CASSANDRA_HOST=${DOCKER_CASSANDRA_HOST}
       - CASSANDRA_KEYSPACE=${CASSANDRA_KEYSPACE}
+      - CASSANDRA_PORT=${DOCKER_CASSANDRA_PORT}
       - WEB_DOMAIN=${DOCKER_WEB_DOMAIN}
       - WEB_PORT=${DOCKER_WEB_PORT}
       - REDIS_HOST=${REDIS_DOCKER_HOST}
@@ -27,24 +28,20 @@ services:
       - cas
       - cache
       - es01
-    networks:
-      testing_net:
-        ipv4_address: 172.28.1.1
     
 
   cas:
     image: cassandra:latest
     container_name: cas
+    volumes:
+      - cas_data:/var/lib/cassandra
     ports:
-      - ${CASSANDRA_PORT}:${CASSANDRA_PORT}
+      - ${CASSANDRA_PORT}:${DOCKER_CASSANDRA_PORT}
     environment:
       - CASSANDRA_START_RPC=${CASSANDRA_START_RPC}
       - CASSANDRA_CLUSTER_NAME=${CASSANDRA_CLUSTER_NAME}
       - CASSANDRA_ENDPOINT_SNITCH=${CASSANDRA_ENDPOINT_SNITCH}
       - CASSANDRA_DC=${CASSANDRA_DC}
-    networks:
-      testing_net:
-        ipv4_address: 172.28.1.2
 
 
   db:
@@ -58,9 +55,6 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-    networks:
-      testing_net:
-        ipv4_address: 172.28.1.4
   
 
   cache:
@@ -70,9 +64,6 @@ services:
     ports:
       - ${REDIS_PORT}:${DOCKER_REDIS_PORT}
     command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
-    networks:
-      testing_net:
-        ipv4_address: 172.28.1.5
   
 
   es01:
@@ -107,16 +98,8 @@ services:
 
 volumes:
   postgres_data:
+  cas_data:
   data01:
     driver: local
   kibana-data:
     driver: local
-
-networks:
-  elastic:
-      driver: bridge
-  testing_net:
-      ipam:
-        driver: default
-        config:
-            - subnet: 172.28.0.0/16
