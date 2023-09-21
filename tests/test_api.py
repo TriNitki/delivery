@@ -5,7 +5,7 @@ import json
 from .model_factories import UserFactory, UserUpdateFactory
 from .conftest import Client, UserCompareBase
 from app.main import app
-from app.schemas.user import UserCreateBase, UserDisplay, UserUpdateBase
+from app.user.schemas import UserCreateBase, UserDisplay, UserUpdateBase
 
 @pytest.fixture(scope='session')
 def new_user():

@@ -6,7 +6,7 @@ from datetime import datetime
 from starlette.types import ASGIApp
 from fastapi.testclient import TestClient
 
-from app.schemas.unspecified import RussianCitiesEnum, Genders, Currencies
+from app.schemas import RussianCitiesEnum, Genders, Currencies
 
 class Client(TestClient):
     def __init__(

@@ -1,8 +1,12 @@
 from polyfactory.factories.pydantic_factory import ModelFactory
 from polyfactory import PostGenerated
+from app.user import schemas as user
+from app.cart import schemas as cart
+from app.order import schemas as order
+from app.product import schemas as product
+from app.review import schemas as review
 
-from app.schemas import (user, cart, warehouse,
-                         product, review, order) 
+from app.warehouse import schemas as warehouse
 
 class UserFactory(ModelFactory[user.UserCreateBase]):
     __model__ = user.UserCreateBase
