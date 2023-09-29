@@ -6,7 +6,7 @@ from ..database import get_pg_db
 from ..user.auth import Auth
 from . import db_product, db_stock
 from ..search import product_autocomplete as product_ac
-from .schemas import ProductCreateBase, ProductDisplay, Stock
+from .schemas import ProductCreateBase, ProductDisplay, Stock, ProductUpdateBase
 from ..user.schemas import UserDisplay
 
 
@@ -24,6 +24,17 @@ async def create_product(
     new_product = db_product.create_product(db, current_user.id, request)
     product_ac.add_product(new_product)
     return new_product
+
+@router.patch('/product/{product_id}', response_model=ProductDisplay)
+async def update_product(
+    current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
+    db: Annotated[Session, Depends(get_pg_db)],
+    request: ProductUpdateBase = Body(),
+    product_id: str = Path()
+):
+    updated_product = db_product.update_product(db, current_user.id, product_id, request)  # noqa: E501
+    # product_ac.add_product(new_product)
+    return updated_product
 
 @router.get('/product/{product_id}', response_model=ProductDisplay)
 async def get_product(

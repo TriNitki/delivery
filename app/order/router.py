@@ -1,11 +1,15 @@
-from typing import Annotated
-from fastapi import APIRouter, Depends, Path, Query, Body
-from datetime import datetime
+from typing import Annotated, List
+from fastapi import APIRouter, Depends, Body, HTTPException
+from sqlalchemy.orm.session import Session
 
+from ..database import get_pg_db
 from ..user.auth import Auth
-from .schemas import OrderCreateBase, OrderDisplay
+from .schemas import OrderDetails, OrderDisplay
 from ..user.schemas import UserDisplay
 from . import db_order
+
+from ..schemas import Roles
+from ..dependencies import valid_order_details, valid_order
 
 router = APIRouter(
     prefix='/user/order',
@@ -13,20 +17,24 @@ router = APIRouter(
 )
 
 
-
-@router.post('/{product_id}', response_model=OrderDisplay)
+@router.post('/', response_model=OrderDisplay)
 async def create_order(
     current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
-    product_id: str = Path(),
-    request: OrderCreateBase = Body()
+    order_details: Annotated[List[OrderDetails], Depends(valid_order_details)],
+    db: Annotated[Session, Depends(get_pg_db)],
+    delivery_address: str = Body()
 ):
-    return db_order.create_order(current_user.id, product_id, request)
+    return db_order.create_order(db, current_user.id, order_details, delivery_address)
 
-@router.get('/{product_id}', response_model=OrderDisplay)
+@router.get('/{order_id}', response_model=OrderDisplay)
 async def get_order(
     current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
-    product_id: str = Path(),
-    creation_datetime: datetime = Query()
-    
+    order: Annotated[OrderDisplay, Depends(valid_order)],
 ):
-    return db_order.get_order(current_user.id, product_id, creation_datetime)
+    if current_user.role != Roles.admin and current_user.id != order.buyer_id:
+        raise HTTPException(
+            status_code=403,
+            detail="You do not have permission to access this order"
+        )
+    
+    return order

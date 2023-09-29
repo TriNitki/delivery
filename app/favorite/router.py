@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, Path
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from . import db_favorite
@@ -8,7 +8,9 @@ from ..user.auth import Auth
 from .schemas import FavoriteDisplay, UserFavoritesDisplay
 from ..user.schemas import UserDisplay
 from ..user import db_user
+from ..product.schemas import ProductDisplay
 from ..database import get_pg_db
+from ..dependencies import valid_product_id
 
 router = APIRouter(
     prefix='/user',
@@ -20,17 +22,17 @@ router = APIRouter(
 async def create_favorite(
     current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
     db: Annotated[Session, Depends(get_pg_db)],
-    product_id: str = Path()
+    product: Annotated[ProductDisplay, Depends(valid_product_id)]
 ):
-    return db_favorite.create_favorite(db, current_user.id, product_id)
+    return db_favorite.create_favorite(db, current_user.id, product.id)
 
 @router.delete('/favorite/{product_id}', response_model=None)
 async def delete_favorite(
     current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
     db: Annotated[Session, Depends(get_pg_db)],
-    product_id: str = Path()
+    product: Annotated[ProductDisplay, Depends(valid_product_id)]
 ):
-    return db_favorite.delete_favorite(db, current_user.id, product_id)
+    return db_favorite.delete_favorite(db, current_user.id, product.id)
 
 @router.get('/favorites', response_model=UserFavoritesDisplay, response_model_by_alias=False)  # noqa: E501
 async def get_user_favorites(

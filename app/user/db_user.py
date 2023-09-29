@@ -20,6 +20,7 @@ def create_user(db: Session, request: UserCreateBase) -> DbUser:
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+    
     return new_user
 
 def update_user(db: Session, id: uuid.UUID, request: UserUpdateBase):

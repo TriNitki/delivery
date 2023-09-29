@@ -25,11 +25,6 @@ async def signup(
     db: Annotated[Session, Depends(get_pg_db)],
     request: UserCreateBase = Body()
 ):
-    if request.password != request.password_confirm:
-        raise HTTPException(400, 'Password and password confirmation are not the same')
-    
-    del request.password_confirm
-    
     if db_user.get_user_by_email(db, request.email):
         raise HTTPException(409, 'Account already exist')
     
@@ -101,7 +96,8 @@ def user_edit(
     request: UserUpdateBase = Body()
     
 ):
-    return db_user.update_user(db, current_user.id, request)
+    a = db_user.update_user(db, current_user.id, request)
+    return a
 
 @router.delete('/me', response_model=None)
 def user_deactivate(

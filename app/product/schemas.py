@@ -33,6 +33,17 @@ class ProductCreateBase(BaseModel):
     discount: int | None = None
     description: str | None = None
     image: str | None = None
+
+class ProductUpdateBase(BaseModel):
+    name: str | None = None
+    price: Decimal | None = None
+    weight: int | None = None
+    manufacturer_country: CountriesEnum | None = None
+    category_name: str | None = None
+    brand: str | None = None
+    discount: int | None = None
+    description: str | None = None
+    image: str | None = None
     
 class ProductDisplay(BaseModel):
     id: str
@@ -62,6 +73,7 @@ class ProductSuggest(BaseModel):
     weight: int
 
 class ProductAutoComleteSearch(BaseModel):
+    id: str
     name: str
     brand: str
     description: str

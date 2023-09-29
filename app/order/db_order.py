@@ -1,78 +1,54 @@
+from sqlalchemy.orm.session import Session
 from uuid import UUID
-from datetime import datetime, timedelta
+from typing import List
 
-from ..models_cas import DbOrder
-from .schemas import OrderCreateBase, OrderDisplay
-from ..product.schemas import Product
-from ..database import get_pg_db
-from ..product import db_product
+from .schemas import OrderDetails
+from ..models import DbOrder, DbOrderProduct
 
-def create_order(id: UUID, product_id: str, request: OrderCreateBase) -> DbOrder:
-    creation_datetime = datetime.utcnow() \
-        if request.creation_datetime is None else request.creation_datetime
-    db = get_pg_db()
-    product = db_product.get_product(next(db), product_id)
-    
-    '''
-    Replace `delivery_datetime` and `estimated_delivery_time` values 
-    for not had hard coded variants
-    '''
-    
-    new_order = DbOrder.create(
-        user_id = id,
-        creation_datetime = creation_datetime,
-        delivery_datetime = creation_datetime + timedelta(days=5),
-        estimated_delivery_time = 5,
-        delivery_address = request.delivery_address,
-        quantity = request.quantity,
-        
-        product_id = product_id,
-        product_name = product.name,
-        product_price = product.price,
-        product_weight = product.weight,
-        product_manufacturer_country = product.manufacturer_country,
-        product_category_name = product.category_name,
-        product_brand = product.brand,
-        product_discount = product.discount,
-        product_description = product.description,
-        product_image = product.image,
-        product_is_active = product.is_active,
-        product_seller_id = product.seller_id
+def create_order(
+    db: Session, 
+    user_id: UUID, 
+    order_details: List[OrderDetails], 
+    delivery_addres: str
+):
+    new_order = DbOrder(
+        buyer_id=user_id,
+        delivery_address=delivery_addres
     )
     
-    return __to_order_display(new_order)
-
-def get_order(id: UUID, product_id: str, creation_datetime: datetime):
-    order = DbOrder.get(
-        user_id = id, 
-        product_id = product_id, 
-        creation_datetime = creation_datetime
-    )
+    db.add(new_order)
+    db.commit()
     
-    return __to_order_display(order)
+    create_order_product(db, new_order.id, order_details)
+    
+    db.refresh(new_order)
+    
+    return new_order
 
+def get_order(db: Session, order_id: str):
+    return db.query(DbOrder).filter(DbOrder.id == order_id).first()
 
-def __to_order_display(order: DbOrder):
-    return OrderDisplay(
-        user_id=order.user_id,
-        creation_datetime=order.creation_datetime,
-        delivery_datetime=order.delivery_datetime,
-        estimated_delivery_time=order.estimated_delivery_time,
-        delivery_address=order.delivery_address,
-        quantity=order.quantity,
-        is_cancelled=order.is_cancelled,
-        product=Product(
-            id=order.product_id,
-            name=order.product_name,
-            price=order.product_price,
-            weight=order.product_weight,
-            manufacturer_country=order.product_manufacturer_country,
-            category_name=order.product_category_name,
-            brand=order.product_brand,
-            discount=order.product_discount,
-            description=order.product_description,
-            image=order.product_image,
-            is_active=order.product_is_active,
-            seller_id=order.product_seller_id
-        )
-    )
+def create_order_product(db: Session, details_id, order_details: List[OrderDetails]):
+    objects = [
+        DbOrderProduct(
+            id=order_product.id,
+            details_id=details_id,
+            name=order_product.name,
+            price=order_product.price,
+            weight=order_product.weight,
+            manufacturer_country=order_product.manufacturer_country,
+            category_name=order_product.category_name,
+            brand=order_product.brand,
+            discount=order_product.discount,
+            description=order_product.description,
+            image=order_product.image,
+            seller_id=order_product.seller.id,
+            warehouse_id=order_product.warehouse.id,
+            quantity=order_product.quantity,
+            delivery_datetime=order_product.delivery_datetime,
+            estimated_delivery_time=order_product.estimated_delivery_time
+        ) for order_product in order_details
+    ]
+    
+    db.bulk_save_objects(objects)
+    db.commit()

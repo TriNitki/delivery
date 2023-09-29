@@ -17,7 +17,7 @@ def autocomplete(text: str, client: Elasticsearch = get_es_db()):
         }
     res = client.search(
         index='city_autocomplete',
-        query=query_dictionary
+        body=query_dictionary
     )
     
     options = [

@@ -1,4 +1,6 @@
-from pydantic import BaseModel, EmailStr, constr
+from pydantic import BaseModel, EmailStr, constr, field_validator
+from pydantic_core.core_schema import FieldValidationInfo
+from fastapi import HTTPException
 from uuid import UUID
 from datetime import datetime
 from ..schemas import Genders, Currencies, Roles, RussianCitiesEnum
@@ -17,6 +19,14 @@ class UserCreateBase(BaseModel):
     city: RussianCitiesEnum
     currency_name: Currencies = Currencies.rub
     profile_picture: str
+    
+    @field_validator("password_confirm")
+    def passwords_match(cls, v: str, info: FieldValidationInfo) -> str:
+        if "password" in info.data and v != info.data["password"]:
+            raise HTTPException(
+                400, 'Passwords do not match'
+            )
+        return v
 
 class LoginBase(BaseModel):
     email: EmailStr
@@ -33,6 +43,16 @@ class UserUpdateBase(BaseModel):
     city: RussianCitiesEnum | None = None
     currency_name: Currencies | None = None
     profile_picture: str | None = None
+
+class MinUserDisplay(BaseModel):
+    id: UUID
+    email: str
+    full_name: str
+    phone_number: str
+    profile_picture: str
+    role: Roles
+    is_active: bool
+    is_registered: bool
     
 class UserDisplay(BaseModel):
     id: UUID

@@ -13,3 +13,6 @@ def create_warehouse(db: Session, request: WarehouseCreateBase):
     db.commit()
     db.refresh(new_warehouse)
     return new_warehouse
+
+def get_warehouse(db: Session, id: int):
+    return db.query(DbWarehouse).filter(DbWarehouse.id == id).one()

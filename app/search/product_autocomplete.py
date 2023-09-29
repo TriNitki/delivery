@@ -6,11 +6,12 @@ from ..models import DbProduct
 
 def add_product(product: DbProduct, client: Elasticsearch = get_es_db()):
     suggest = ProductSuggest(
-        input = [*product.name.split(), product.brand],
+        input = [*product.name.lower().split(), product.brand.lower()],
         weight = 10
     )
     
     document = ProductAutoComleteSearch(
+        id = product.id,
         name = product.name,
         brand = product.brand,
         description = product.description,
@@ -32,12 +33,14 @@ def autocomplete(text: str, client: Elasticsearch = get_es_db()):
         }
     }
 
-    query_dictionary = {'suggest' : suggest_dictionary}
+    query_dictionary = {
+        'suggest' : suggest_dictionary
+    }
+    
     res = client.search(
         index='product_autocomplete',
-        query=query_dictionary
+        body=query_dictionary
     )
-    
     
     options = [
         option['text'] for option in res.body['suggest']['suggests'][0]['options']

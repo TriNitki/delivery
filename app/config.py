@@ -9,9 +9,6 @@ class Settings(BaseSettings):
     
     # db config
     POSTGRES_URL: str
-    CASSANDRA_KEYSPACE: str
-    CASSANDRA_HOST: str
-    CASSANDRA_PORT: str
     REDIS_HOST: str
     REDIS_PORT: str
     REDIS_PASSWORD: str
