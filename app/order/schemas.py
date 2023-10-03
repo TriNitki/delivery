@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime, timedelta
 from uuid import UUID
 from typing import List
@@ -11,7 +11,7 @@ from ..warehouse.schemas import WarehouseDisplay
 class OrderProductCreateBase(BaseModel):
     product_id: str
     warehouse_id: int
-    quantity: int
+    quantity: int = Field(..., ge=1)
     
 class OrderDetails(BaseModel):
     quantity: int

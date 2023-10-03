@@ -7,3 +7,8 @@ class WarehouseCreateBase(BaseModel):
 
 class WarehouseDisplay(WarehouseCreateBase):
     id: int
+
+class WarehouseTestModel(BaseModel):
+    id: str | None = None
+    address: str | None = None
+    packaging_time: timedelta | None = None

@@ -13,8 +13,6 @@ router = APIRouter(
     tags=['warehouse']
 )
 
-
-
 @router.post('/', response_model=WarehouseDisplay)
 async def create_warehouse(
     current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],

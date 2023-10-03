@@ -6,7 +6,8 @@ from ..database import get_pg_db
 from ..user.auth import Auth
 from . import db_product, db_stock
 from ..search import product_autocomplete as product_ac
-from .schemas import ProductCreateBase, ProductDisplay, Stock, ProductUpdateBase
+from .schemas import (ProductCreateBase, ProductDisplay, StockCreatebase, 
+                      ProductUpdateBase, ModifyStock, SetStatus)
 from ..user.schemas import UserDisplay
 
 
@@ -43,6 +44,14 @@ async def get_product(
 ):
     return db_product.get_product(db, product_id)
 
+@router.put('/product/{product_id}/status', response_model=None)
+async def set_status(
+    db: Annotated[Session, Depends(get_pg_db)],
+    product_id: str = Path(),
+    request: SetStatus = Body()
+):
+    return db_product.set_status(db, product_id, request.is_active)
+
 @router.get('/product/{product_id}/stock')
 async def get_stock(
     db: Annotated[Session, Depends(get_pg_db)],
@@ -54,7 +63,7 @@ async def get_stock(
 async def create_stock(
     current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
     db: Annotated[Session, Depends(get_pg_db)],
-    request: Stock = Body(),
+    request: StockCreatebase = Body(),
     product_id: str = Path()
 ):
     return db_stock.create_stock(
@@ -65,18 +74,18 @@ async def create_stock(
 async def modify_stock(
     current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
     db: Annotated[Session, Depends(get_pg_db)],
-    request: Stock = Body(),
+    request: ModifyStock = Body(),
     product_id: str = Path(),
 ):
     return db_stock.add_stock(
-        db, product_id, request.warehouse_id, request.units_in_stock
+        db, product_id, request.warehouse_id, request.modifier
     )
 
 @router.put('/product/{product_id}/stock')
 async def set_stock(
     current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
     db: Annotated[Session, Depends(get_pg_db)],
-    request: Stock = Body(),
+    request: StockCreatebase = Body(),
     product_id: str = Path()
 ):
     return db_stock.set_stock(

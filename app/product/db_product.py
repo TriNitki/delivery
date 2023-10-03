@@ -16,7 +16,7 @@ def create_product(db: Session, seller_id: uuid.UUID, request: ProductCreateBase
         brand = request.brand,
         discount = request.discount,
         description = request.description,
-        image = str(request.image),
+        image = request.image,
         seller_id = seller_id
     )
     
@@ -49,5 +49,9 @@ def update_product(
 def get_product(db: Session, product_id: str):
     return db.query(DbProduct).filter(DbProduct.id == product_id).first()
 
-def get_products(db: Session, product_ids: list):
-    return db.query(DbProduct).filter(DbProduct.id.in_(product_ids)).all()
+def set_status(db: Session, product_id: str, status: bool):
+    product = db.query(DbProduct).filter(DbProduct.id == product_id)
+    product.update({DbProduct.is_active: status})
+    
+    db.commit()
+    return None

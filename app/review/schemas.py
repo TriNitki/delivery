@@ -1,9 +1,9 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
 from uuid import UUID
 
 class ReviewCreateBase(BaseModel):
-    rating: int
+    rating: int = Field(..., ge=1, le=5)
     description: str
     
 class ReviewDisplay(BaseModel):

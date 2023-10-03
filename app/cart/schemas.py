@@ -9,7 +9,7 @@ class Cart(BaseModel):
     addition_datetime: datetime
 
 class CartCreateBase(BaseModel):
-    quantity: int
+    quantity: int = Field(..., ge=1)
     
 class CartDisplay(BaseModel):
     addition_datetime: datetime
