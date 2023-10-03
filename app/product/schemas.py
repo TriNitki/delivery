@@ -5,14 +5,6 @@ from typing import List
 from decimal import Decimal
 from uuid import UUID
 
-class StockCreatebase(BaseModel):
-    warehouse_id: int
-    units_in_stock: int = Field(..., ge=0)
-
-class ModifyStock(BaseModel):
-    modifier: int
-    warehouse_id: int
-
 class SetStatus(BaseModel):
     is_active: bool
 

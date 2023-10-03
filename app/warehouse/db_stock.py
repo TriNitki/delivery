@@ -1,5 +1,6 @@
 from sqlalchemy.orm.session import Session
 from fastapi import HTTPException
+from sqlalchemy.exc import IntegrityError
 
 from ..models import DbStock
 
@@ -11,13 +12,25 @@ def create_stock(db: Session, product_id: str, warehouse_id: int, quantity: int)
     )
     
     db.add(new_stock)
-    db.commit()
+    
+    try:
+        db.commit()
+    except IntegrityError:
+        raise HTTPException(
+            status_code=403,
+            detail="Product's stock already exists in this warehouse"
+        )
+    
     db.refresh(new_stock)
     return new_stock
 
-def get_stock(db: Session, product_id: str):
-    products = db.query(DbStock).filter(DbStock.product_id == product_id).all()
-    return products
+def get_product_stock(db: Session, product_id: str):
+    stock = db.query(DbStock).filter(DbStock.product_id == product_id)
+    return stock.all()
+
+def get_warehouse_stock(db: Session, warehouse_id: int):
+    stock = db.query(DbStock).filter(DbStock.warehouse_id == warehouse_id)
+    return stock.all()
 
 def add_stock(db: Session, product_id: str, warehouse_id: int, modifier: int):
     product = db.query(DbStock).filter(

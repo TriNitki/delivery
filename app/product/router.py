@@ -4,10 +4,11 @@ from sqlalchemy.orm import Session
 
 from ..database import get_pg_db
 from ..user.auth import Auth
-from . import db_product, db_stock
+from . import db_product
+from ..warehouse import db_stock
 from ..search import product_autocomplete as product_ac
-from .schemas import (ProductCreateBase, ProductDisplay, StockCreatebase, 
-                      ProductUpdateBase, ModifyStock, SetStatus)
+from .schemas import (ProductCreateBase, ProductDisplay, 
+                      ProductUpdateBase, SetStatus)
 from ..user.schemas import UserDisplay
 
 
@@ -53,41 +54,8 @@ async def set_status(
     return db_product.set_status(db, product_id, request.is_active)
 
 @router.get('/product/{product_id}/stock')
-async def get_stock(
+async def get_product_stock(
     db: Annotated[Session, Depends(get_pg_db)],
     product_id: str = Path()
 ):
-    return db_stock.get_stock(db, product_id)
-
-@router.post('/product/{product_id}/stock')
-async def create_stock(
-    current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
-    db: Annotated[Session, Depends(get_pg_db)],
-    request: StockCreatebase = Body(),
-    product_id: str = Path()
-):
-    return db_stock.create_stock(
-        db, product_id, request.warehouse_id, request.units_in_stock
-    )
-
-@router.patch('/product/{product_id}/stock')
-async def modify_stock(
-    current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
-    db: Annotated[Session, Depends(get_pg_db)],
-    request: ModifyStock = Body(),
-    product_id: str = Path(),
-):
-    return db_stock.add_stock(
-        db, product_id, request.warehouse_id, request.modifier
-    )
-
-@router.put('/product/{product_id}/stock')
-async def set_stock(
-    current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
-    db: Annotated[Session, Depends(get_pg_db)],
-    request: StockCreatebase = Body(),
-    product_id: str = Path()
-):
-    return db_stock.set_stock(
-        db, product_id, request.warehouse_id, request.units_in_stock
-    )
+    return db_stock.get_product_stock(db, product_id)

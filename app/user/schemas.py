@@ -1,24 +1,28 @@
-from pydantic import BaseModel, EmailStr, constr, field_validator
+from pydantic import BaseModel, EmailStr, constr, field_validator, Field
 from pydantic_core.core_schema import FieldValidationInfo
 from fastapi import HTTPException
 from uuid import UUID
 from datetime import datetime
 from ..schemas import Genders, Currencies, Roles, RussianCitiesEnum
+from ..static import url_regex
 
 class UserCreateBase(BaseModel):
     email: EmailStr
-    full_name: str
-    password: constr(min_length=4)
-    password_confirm: constr(min_length=4)
+    full_name: str = Field(..., min_length=1)
+    password: str = Field(..., min_length=4)
+    password_confirm: str = Field(..., min_length=4)
     phone_number: constr(
-            strip_whitespace=True,
-            pattern=r"^(\+7|8)[0-9]{10}$",
-        )
+        strip_whitespace=True,
+        pattern=r"^(\+7|8)[0-9]{10}$",
+    )
     gender: Genders
     date_of_birth: datetime
     city: RussianCitiesEnum
     currency_name: Currencies = Currencies.rub
-    profile_picture: str
+    profile_picture: constr(
+        strip_whitespace=True,
+        pattern=url_regex,
+    ) = Field(..., examples=["https://example.com/"])
     
     @field_validator("password_confirm")
     def passwords_match(cls, v: str, info: FieldValidationInfo) -> str:
@@ -30,7 +34,7 @@ class UserCreateBase(BaseModel):
 
 class LoginBase(BaseModel):
     email: EmailStr
-    password: constr(min_length=4)
+    password: str = Field(..., min_length=4)
 
 class UserUpdateBase(BaseModel):
     full_name: str | None = None
