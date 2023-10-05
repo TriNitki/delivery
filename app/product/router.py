@@ -47,6 +47,7 @@ async def get_product(
 
 @router.put('/product/{product_id}/status', response_model=None)
 async def set_status(
+    current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
     db: Annotated[Session, Depends(get_pg_db)],
     product_id: str = Path(),
     request: SetStatus = Body()

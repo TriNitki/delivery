@@ -32,6 +32,13 @@ def get_warehouse_stock(db: Session, warehouse_id: int):
     stock = db.query(DbStock).filter(DbStock.warehouse_id == warehouse_id)
     return stock.all()
 
+def get_product_warehouse_stock(db: Session, product_id: str, warehouse_id: int):
+    stock = db.query(DbStock).filter(
+        DbStock.product_id == product_id, 
+        DbStock.warehouse_id == warehouse_id
+    )
+    return stock.one()
+
 def add_stock(db: Session, product_id: str, warehouse_id: int, modifier: int):
     product = db.query(DbStock).filter(
         DbStock.product_id == product_id, DbStock.warehouse_id == warehouse_id
@@ -64,5 +71,3 @@ def set_stock(db: Session, product_id: str, warehouse_id: int, quantity: int):
         DbStock.units_in_stock: quantity
     })
     db.commit()
-    
-    return product.one()

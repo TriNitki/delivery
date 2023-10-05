@@ -4,11 +4,23 @@ import json
 import re
 from pydantic import BaseModel, EmailStr, constr
 from datetime import datetime
+from pydantic.config import ConfigDict
 from starlette.types import ASGIApp
 from fastapi.testclient import TestClient
 
 from app.schemas import RussianCitiesEnum, Genders, Currencies
 from app.user.schemas import UserCreateBase, UserDisplay
+from app.product.schemas import ProductTestModel
+from .model_factories import ProductFactory
+
+class ClientProduct(ProductTestModel):
+    def __init_subclass__(cls, **kwargs: ConfigDict):
+        return super().__init_subclass__(**kwargs)
+    
+    def update(self, update_model: ProductTestModel):
+        for attr, value in update_model.model_dump().items():
+            if value is not None:
+                setattr(self, attr, value)
 
 class Client(TestClient):
     def __init__(
@@ -28,6 +40,8 @@ class Client(TestClient):
         )
     
     _jwt_pattern = r'^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.[A-Za-z0-9-_.+/=]*$'
+    
+    product = ClientProduct()
     
     def signup(self, create_base: UserCreateBase):
         response = self.post("/user/signup", content=create_base.model_dump_json())
@@ -49,6 +63,10 @@ class Client(TestClient):
         self._set_default_access_token(json.loads(response.read())['access_token'])
         self._verify_token_patterns()
     
+    def deactivate(self):
+        response = self.delete('/user/me')
+        assert response.status_code == 200
+    
     def refresh_tokens(self):
         response = self.post("/user/refresh")
         assert response.status_code == 200
@@ -61,6 +79,21 @@ class Client(TestClient):
     
     def get_refresh_token(self):
         return self.cookies.get('refresh_token')
+    
+    def generate_new_product(self):
+        new_product = ProductFactory.build()
+        response = self.post("/product/", content=new_product.model_dump_json())
+        assert response.status_code == 200
+        
+        test_model = ProductTestModel(**json.loads(response.read()))
+        self.product.update(test_model)
+    
+    def deactivate_product(self):
+        response = self.put(
+            f"/product/{self.product.id}/status/", content='{"is_active": false}'
+        )
+        assert response.status_code == 200
+        self.product = ClientProduct()
     
     def _verify_token_patterns(self):
         assert re.match(self._jwt_pattern, self.get_access_token())
@@ -83,6 +116,9 @@ class UserCompareBase(BaseModel):
     profile_picture: str
 
 def compare_models(initial_model: BaseModel, response_model: BaseModel):
+    '''
+    Compares initial (or factory) model with request response model.
+    '''
     for attr, value in initial_model.model_dump().items():
         if value is not None and value != getattr(response_model, attr):
             return False

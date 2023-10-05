@@ -103,7 +103,7 @@ class DbReview(Base):
     rating = Column(SmallInteger)
     
     product = relationship("DbProduct", back_populates='reviews')
-    owner = relationship("DbUser")
+    reviewer = relationship("DbUser")
 
      
 class DbFavorite(Base):

@@ -8,6 +8,10 @@ class WarehouseCreateBase(BaseModel):
 class WarehouseDisplay(WarehouseCreateBase):
     id: int
 
+class WarehouseUpdateBase(BaseModel):
+    address: str | None = None
+    packaging_time: timedelta | None = None
+
 class WarehouseTestModel(BaseModel):
     id: str | None = None
     address: str | None = None
@@ -18,3 +22,9 @@ class StockCreatebase(BaseModel):
 
 class ModifyStock(BaseModel):
     modifier: int
+
+class StockDisplayBase(BaseModel):
+    warehouse_id: int
+    product_id: str
+    units_in_stock: int
+    

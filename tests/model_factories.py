@@ -34,3 +34,12 @@ class ReviewFactory(ModelFactory[review.ReviewCreateBase]):
 
 class WarehouseFactory(ModelFactory[warehouse.WarehouseCreateBase]):
     __model__ = warehouse.WarehouseCreateBase
+
+class WarehouseUpdateFactory(ModelFactory[warehouse.WarehouseUpdateBase]):
+    __model__ = warehouse.WarehouseUpdateBase
+
+class StockFactory(ModelFactory[warehouse.StockCreatebase]):
+    __model__ = warehouse.StockCreatebase
+
+class StockModifyfactory(ModelFactory[warehouse.ModifyStock]):
+    __model__ = warehouse.ModifyStock
