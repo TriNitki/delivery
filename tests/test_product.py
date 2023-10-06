@@ -1,30 +1,15 @@
-import pytest
 import json
 
-from .model_factories import ProductFactory, ProductUpdateFactory, UserFactory
 from .conftest import Client, compare_models, ClientProduct
 from app.main import app
-from app.user.schemas import UserCreateBase
 from app.product.schemas import ProductCreateBase, ProductUpdateBase, ProductDisplay
-
-@pytest.fixture(scope='class')
-def new_user():
-    return UserFactory.build()
-
-@pytest.fixture(scope='class')
-def new_product():
-    return ProductFactory.build()
-
-@pytest.fixture(scope='session')
-def product_update_body():
-    return ProductUpdateFactory.build()
 
 class TestProduct:
     client = Client(app)
     
-    def test_activate_user(self, new_user: UserCreateBase):
-        self.client.signup(new_user)
-        self.client.login(new_user.email, new_user.password)
+    def test_activate_user(self):
+        self.client.signup()
+        self.client.login()
     
     def test_create(self, new_product: ProductCreateBase):
         response = self.client.post("/product/", content=new_product.model_dump_json())
@@ -47,15 +32,15 @@ class TestProduct:
         assert response_product
         assert compare_models(new_product, response_product) 
     
-    def test_update(self, product_update_body: ProductUpdateBase):
+    def test_update(self, new_product_update: ProductUpdateBase):
         response = self.client.patch(
             f"/product/{self.client.product.id}/", 
-            content=product_update_body.model_dump_json()
+            content=new_product_update.model_dump_json()
         )
         assert response.status_code == 200
-        response_product = ProductUpdateBase(**json.loads(response.read()))
+        response_product = ProductDisplay(**json.loads(response.read()))
         assert response_product
-        assert compare_models(product_update_body, response_product)
+        assert compare_models(new_product_update, response_product, ignore_none=True)
         
         self.client.product.update(response_product)
     
@@ -72,18 +57,3 @@ class TestProduct:
     
     def test_deactivate_user(self):
         self.client.deactivate()
-    
-    # def test_create_stock(self, new_warehouse: WarehouseCreateBase):
-    #     response_warehouse = self.client.post(
-    #         "/warehouse", 
-    #         content=new_warehouse.model_dump_json()
-    #     )
-    #     response_ware = WarehouseDisplay(**json.loads(response_warehouse.read()))
-    #     self.warehouse.id = response_ware.id
-        
-    #     stock = StockCreatebase(units_in_stock=10, warehouse_id=self.warehouse.id)
-    #     response_stock = self.client.post(
-    #         f"/product/{self.client.product.id}/stock",
-    #         content=stock.model_dump_json()
-    #     )
-    #     assert response_stock.status_code == 200

@@ -1,46 +1,18 @@
-import pytest
 import json
 
-from .model_factories import (WarehouseFactory, UserFactory, WarehouseUpdateFactory,
-                              StockFactory, StockModifyfactory)
 from .conftest import Client, compare_models
 from app.main import app
-from app.user.schemas import UserCreateBase
 from app.warehouse.schemas import (WarehouseTestModel, WarehouseDisplay, 
                                    WarehouseCreateBase, WarehouseUpdateBase, 
                                    StockCreatebase, StockDisplayBase, ModifyStock)
-
-@pytest.fixture(scope='class')
-def new_user():
-    return UserFactory.build()
-
-@pytest.fixture(scope='class')
-def new_warehouse():
-    return WarehouseFactory.build()
-
-@pytest.fixture(scope='class')
-def new_warehouse_update():
-    return WarehouseUpdateFactory.build()
-
-@pytest.fixture(scope='class')
-def new_stock():
-    return StockFactory.build()
-
-@pytest.fixture(scope='class')
-def new_set_stock():
-    return StockFactory.build()
-
-@pytest.fixture(scope='class')
-def new_stock_modifier():
-    return StockModifyfactory.build()
 
 class TestWarehouse:
     client = Client(app)
     warehouse = WarehouseTestModel()
     
-    def test_activate(self, new_user: UserCreateBase):
-        self.client.signup(new_user)
-        self.client.login(new_user.email, new_user.password)
+    def test_activate(self):
+        self.client.signup()
+        self.client.login()
         self.client.generate_new_product()
     
     def test_create(self, new_warehouse: WarehouseCreateBase):
@@ -76,7 +48,7 @@ class TestWarehouse:
         assert response.status_code == 200
         response_warehouse = WarehouseUpdateBase(**json.loads(response.read()))
         assert response_warehouse
-        assert compare_models(new_warehouse_update, response_warehouse)
+        assert compare_models(new_warehouse_update, response_warehouse, ignore_none=True)  # noqa: E501
     
     def test_create_stock(self, new_stock: StockCreatebase):
         response = self.client.post(

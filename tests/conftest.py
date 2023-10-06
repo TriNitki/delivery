@@ -2,22 +2,75 @@ import typing
 import httpx
 import json
 import re
-from pydantic import BaseModel, EmailStr, constr
-from datetime import datetime
+import pytest
+from pydantic import BaseModel
 from pydantic.config import ConfigDict
 from starlette.types import ASGIApp
 from fastapi.testclient import TestClient
 
-from app.schemas import RussianCitiesEnum, Genders, Currencies
-from app.user.schemas import UserCreateBase, UserDisplay
-from app.product.schemas import ProductTestModel
-from .model_factories import ProductFactory
+from app.user.schemas import UserCreateBase, UserDisplay, UserTestModel, UserUpdateBase
+from app.product.schemas import ProductTestModel, ProductUpdateBase
+from . import model_factories as factories
+
+@pytest.fixture(scope='class')
+def new_user():
+    return factories.UserFactory.build()
+
+@pytest.fixture(scope='class')
+def new_review():
+    return factories.ReviewFactory.build()
+
+@pytest.fixture(scope='session')
+def new_update_review():
+    return factories.ReviewUpdateFactory.build()
+
+@pytest.fixture(scope='class')
+def new_product():
+    return factories.ProductFactory.build()
+
+@pytest.fixture(scope='session')
+def new_product_update():
+    return factories.ProductUpdateFactory.build()
+
+@pytest.fixture(scope='session')
+def user_update_body():
+    return factories.UserUpdateFactory.build()
+
+@pytest.fixture(scope='class')
+def new_warehouse():
+    return factories.WarehouseFactory.build()
+
+@pytest.fixture(scope='session')
+def new_warehouse_update():
+    return factories.WarehouseUpdateFactory.build()
+
+@pytest.fixture(scope='class')
+def new_stock():
+    return factories.StockFactory.build()
+
+@pytest.fixture(scope='session')
+def new_set_stock():
+    return factories.StockFactory.build()
+
+@pytest.fixture(scope='session')
+def new_stock_modifier():
+    return factories.StockModifyfactory.build()
+
 
 class ClientProduct(ProductTestModel):
     def __init_subclass__(cls, **kwargs: ConfigDict):
         return super().__init_subclass__(**kwargs)
     
-    def update(self, update_model: ProductTestModel):
+    def update(self, update_model: ProductUpdateBase):
+        for attr, value in update_model.model_dump().items():
+            if value is not None:
+                setattr(self, attr, value)
+
+class ClientUser(UserTestModel):
+    def __init_subclass__(cls, **kwargs: ConfigDict):
+        return super().__init_subclass__(**kwargs)
+    
+    def update(self, update_model: UserUpdateBase):
         for attr, value in update_model.model_dump().items():
             if value is not None:
                 setattr(self, attr, value)
@@ -41,17 +94,26 @@ class Client(TestClient):
     
     _jwt_pattern = r'^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.[A-Za-z0-9-_.+/=]*$'
     
+    user = ClientUser()
     product = ClientProduct()
     
-    def signup(self, create_base: UserCreateBase):
+    def signup(self, create_base: UserCreateBase = None):
+        if not create_base:
+            create_base = factories.UserFactory.build()
         response = self.post("/user/signup", content=create_base.model_dump_json())
         assert response.status_code == 200
         
         response_body = json.loads(response.read())
-
-        assert UserDisplay(**response_body)
+        user_model = UserDisplay(**response_body)
+        assert user_model
+        
+        self.user = ClientUser(**response_body, password = create_base.password)
     
-    def login(self, username: str, password: str):
+    def login(self, username: str = None, password: str = None):
+        if not all([username, password]):
+            username = self.user.email
+            password = self.user.password
+            
         data = {
             'username': username,
             'password': password,
@@ -81,12 +143,11 @@ class Client(TestClient):
         return self.cookies.get('refresh_token')
     
     def generate_new_product(self):
-        new_product = ProductFactory.build()
+        new_product = factories.ProductFactory.build()
         response = self.post("/product/", content=new_product.model_dump_json())
         assert response.status_code == 200
         
-        test_model = ProductTestModel(**json.loads(response.read()))
-        self.product.update(test_model)
+        self.product = ClientProduct(**json.loads(response.read()))
     
     def deactivate_product(self):
         response = self.put(
@@ -102,24 +163,12 @@ class Client(TestClient):
     def _set_default_access_token(self, access_token: str):
         self.headers.setdefault("Authorization", f"Bearer {access_token}")
 
-class UserCompareBase(BaseModel):
-    email: EmailStr
-    full_name: str
-    phone_number: constr(
-            strip_whitespace=True,
-            pattern=r"^(\+7|8)[0-9]{10}$",
-        )
-    gender: Genders
-    date_of_birth: datetime
-    city: RussianCitiesEnum
-    currency_name: Currencies = Currencies.rub
-    profile_picture: str
-
-def compare_models(initial_model: BaseModel, response_model: BaseModel):
+def compare_models(model_a: BaseModel, model_b: BaseModel, ignore_none: bool = False):
     '''
-    Compares initial (or factory) model with request response model.
+    Compares the same attributes of models
     '''
-    for attr, value in initial_model.model_dump().items():
-        if value is not None and value != getattr(response_model, attr):
-            return False
+    for attr, value in model_a.model_dump().items():
+        if hasattr(model_b, attr) and value != getattr(model_b, attr):
+            if (value is None or not getattr(model_b, attr)) and not ignore_none:
+                return False
     return True

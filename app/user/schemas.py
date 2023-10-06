@@ -73,3 +73,33 @@ class UserDisplay(BaseModel):
     registration_datetime: datetime
     is_active: bool
     is_registered: bool
+
+class UserTestModel(BaseModel):
+    id: UUID | None = None
+    email: str | None = None
+    full_name: str | None = None
+    phone_number: str | None = None
+    gender: Genders | None = None
+    date_of_birth: datetime | None = None
+    city: RussianCitiesEnum | None = None
+    currency_name: Currencies | None = None
+    profile_picture: str | None = None
+    role: Roles | None = None
+    balance: float | None = None
+    registration_datetime: datetime | None = None
+    is_active: bool | None = None
+    is_registered: bool | None = None
+    password: str | None = None
+
+class UserCompareBase(BaseModel):
+    email: EmailStr
+    full_name: str
+    phone_number: constr(
+            strip_whitespace=True,
+            pattern=r"^(\+7|8)[0-9]{10}$",
+        )
+    gender: Genders
+    date_of_birth: datetime
+    city: RussianCitiesEnum
+    currency_name: Currencies = Currencies.rub
+    profile_picture: str

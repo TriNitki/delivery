@@ -32,6 +32,9 @@ class CartFactory(ModelFactory[cart.CartCreateBase]):
 class ReviewFactory(ModelFactory[review.ReviewCreateBase]):
     __model__ = review.ReviewCreateBase
 
+class ReviewUpdateFactory(ModelFactory[review.ReviewUpdateBase]):
+    __model__ = review.ReviewUpdateBase
+
 class WarehouseFactory(ModelFactory[warehouse.WarehouseCreateBase]):
     __model__ = warehouse.WarehouseCreateBase
 
