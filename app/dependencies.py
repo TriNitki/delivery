@@ -1,4 +1,4 @@
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException, Depends, Path
 from sqlalchemy.orm.session import Session
 from datetime import datetime
 from typing import List
@@ -13,7 +13,7 @@ from .user.schemas import MinUserDisplay
 from .warehouse.schemas import WarehouseDisplay
 
 def valid_product_id(
-    product_id: str,
+    product_id: str = Path(...),
     db: Session = Depends(get_pg_db)
 ):
     if len(product_id) != 6:

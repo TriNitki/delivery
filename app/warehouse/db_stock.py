@@ -2,13 +2,14 @@ from sqlalchemy.orm.session import Session
 from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
 
+from .schemas import StockCreatebase
 from ..models import DbStock
 
-def create_stock(db: Session, product_id: str, warehouse_id: int, quantity: int):
+def create_stock(db: Session, warehouse_id: int, request: StockCreatebase):
     new_stock = DbStock(
-        product_id=product_id,
+        product_id=request.product_id,
         warehouse_id=warehouse_id,
-        units_in_stock=quantity
+        units_in_stock=request.units_in_stock
     )
     
     db.add(new_stock)

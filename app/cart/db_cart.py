@@ -20,12 +20,12 @@ def _find_cart_item(db: Session, user_id: UUID, product_id: str):
     
     return cart
 
-def create_cart(db: Session, id: UUID, product_id: str, request: CartCreateBase):
+def create_cart(db: Session, id: UUID, request: CartCreateBase):
     addition_datetime = datetime.utcnow()
     
     new_cart = DbCart(
         user_id = id,
-        product_id = product_id,
+        product_id = request.product_id,
         quantity = request.quantity,
         addition_datetime = addition_datetime
     )
@@ -59,8 +59,6 @@ def modify_cart_amount(db: Session, user_id: UUID, product_id: str, modifier):
     db.commit()
     
     return cart.one()
-    
-    
     
 
 def delete_cart_product(db: Session, user_id: UUID, product_id: str):

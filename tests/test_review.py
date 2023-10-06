@@ -2,19 +2,17 @@ import json
 
 from .conftest import Client, compare_models
 from app.main import app
-from app.review.schemas import (ReviewDisplay, ReviewTestModel, 
-                                ReviewCreateBase, ReviewUpdateBase)
+from app.review.schemas import ReviewDisplay, ReviewCreateBase, ReviewUpdateBase
 
 class TestReview:
     client = Client(app)
-    review = ReviewTestModel()
     
     def test_activate(self):
         self.client.signup()
         self.client.login()
         self.client.generate_new_product()
     
-    def test_create(self, new_review: ReviewCreateBase):
+    def test_review_create(self, new_review: ReviewCreateBase):
         response = self.client.post(
             f"/product/{self.client.product.id}/review", 
             content=new_review.model_dump_json()
@@ -32,7 +30,7 @@ class TestReview:
         assert response_body
         assert compare_models(new_review, response_body)
     
-    def test_get(self, new_review: ReviewCreateBase):
+    def test_review_get(self, new_review: ReviewCreateBase):
         response = self.client.get(
             f"/product/{self.client.product.id}/reviews"
         )
@@ -45,7 +43,7 @@ class TestReview:
         assert response_body
         assert compare_models(new_review, response_body)
     
-    def test_update(self, new_update_review: ReviewUpdateBase):
+    def test_review_update(self, new_update_review: ReviewUpdateBase):
         response = self.client.patch(
             f"/product/{self.client.product.id}/review",
             content=new_update_review.model_dump_json()
@@ -55,7 +53,7 @@ class TestReview:
         assert response_body
         assert compare_models(new_update_review, response_body, ignore_none=True)
     
-    def test_delete(self):
+    def test_review_delete(self):
         response = self.client.delete(
             f"/product/{self.client.product.id}/review"
         )

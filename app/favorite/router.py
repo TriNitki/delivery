@@ -1,11 +1,11 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Body
 from sqlalchemy.orm import Session
 
 from . import db_favorite
 
 from ..user.auth import Auth
-from .schemas import FavoriteDisplay, UserFavoritesDisplay
+from .schemas import FavoriteDisplay, UserFavoritesDisplay, FavoriteCreateBase
 from ..user.schemas import UserDisplay
 from ..user import db_user
 from ..product.schemas import ProductDisplay
@@ -18,12 +18,13 @@ router = APIRouter(
 )
 
 
-@router.post('/favorite/{product_id}', response_model=FavoriteDisplay)
+@router.post('/favorite', response_model=FavoriteDisplay)
 async def create_favorite(
     current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
     db: Annotated[Session, Depends(get_pg_db)],
-    product: Annotated[ProductDisplay, Depends(valid_product_id)]
+    request: FavoriteCreateBase = Body(...)
 ):
+    product = valid_product_id(request.product_id, db)
     return db_favorite.create_favorite(db, current_user.id, product.id)
 
 @router.delete('/favorite/{product_id}', response_model=None)

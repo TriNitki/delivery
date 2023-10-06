@@ -53,17 +53,14 @@ async def get_product_warehouse_stock(
 ):
     return db_stock.get_product_warehouse_stock(db, product_id, warehouse_id)
 
-@router.post('/{warehouse_id}/stock/{product_id}')
+@router.post('/{warehouse_id}/stock')
 async def create_stock(
     current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
     db: Annotated[Session, Depends(get_pg_db)],
     request: StockCreatebase = Body(),
-    warehouse_id: int = Path(..., ge=1),
-    product_id: str = Path(..., min_length=6, max_length=6)
+    warehouse_id: int = Path(..., ge=1)
 ):
-    return db_stock.create_stock(
-        db, product_id, warehouse_id, request.units_in_stock
-    )
+    return db_stock.create_stock(db, warehouse_id, request)
 
 @router.patch('/{warehouse_id}/stock/{product_id}')
 async def modify_stock(

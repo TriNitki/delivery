@@ -56,6 +56,9 @@ def new_set_stock():
 def new_stock_modifier():
     return factories.StockModifyfactory.build()
 
+@pytest.fixture(scope='class')
+def new_cart():
+    return factories.CartFactory.build()
 
 class ClientProduct(ProductTestModel):
     def __init_subclass__(cls, **kwargs: ConfigDict):

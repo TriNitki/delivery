@@ -18,6 +18,7 @@ class WarehouseTestModel(BaseModel):
     packaging_time: timedelta | None = None
 
 class StockCreatebase(BaseModel):
+    product_id: str
     units_in_stock: int = Field(..., ge=0)
 
 class ModifyStock(BaseModel):

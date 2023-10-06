@@ -51,14 +51,15 @@ class TestWarehouse:
         assert compare_models(new_warehouse_update, response_warehouse, ignore_none=True)  # noqa: E501
     
     def test_create_stock(self, new_stock: StockCreatebase):
+        new_stock.product_id = self.client.product.id
         response = self.client.post(
-            f"/warehouse/{self.warehouse.id}/stock/{self.client.product.id}", 
+            f"/warehouse/{self.warehouse.id}/stock", 
             content=new_stock.model_dump_json()
         )
         assert response.status_code == 200
         
         response_error = self.client.post(
-            f"/warehouse/{self.warehouse.id}/stock/{self.client.product.id}", 
+            f"/warehouse/{self.warehouse.id}/stock", 
             content="{}"
         )
         assert response_error.status_code == 422
@@ -122,7 +123,7 @@ class TestWarehouse:
         )
         assert response.status_code == 200
         
-        response_error = self.client.post(
+        response_error = self.client.put(
             f"/warehouse/{self.warehouse.id}/stock/{self.client.product.id}", 
             content="{}"
         )

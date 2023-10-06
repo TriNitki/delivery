@@ -24,14 +24,13 @@ async def get_user_cart(
     return db_user.get_user_by_id(db, current_user.id)
 
 
-@router.post('/{product_id}', response_model=CartDisplay)
+@router.post('/', response_model=CartDisplay)
 async def create_cart(
     current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
     db: Annotated[Session, Depends(get_pg_db)],
-    product_id: str = Path(),
     request: CartCreateBase = Body()
 ):
-    return db_cart.create_cart(db, current_user.id, product_id, request)
+    return db_cart.create_cart(db, current_user.id, request)
 
 @router.patch('/{product_id}', response_model=Union[CartDisplay, None])
 async def modify_cart_amount(

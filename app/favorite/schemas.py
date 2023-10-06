@@ -9,6 +9,9 @@ class Favorite(BaseModel):
     addition_datetime: datetime
     product: Product
 
+class FavoriteCreateBase(BaseModel):
+    product_id: str
+
 class FavoriteDisplay(BaseModel):
     user_id: UUID
     addition_datetime: datetime
