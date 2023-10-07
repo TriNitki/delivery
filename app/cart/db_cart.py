@@ -1,18 +1,16 @@
 from uuid import UUID
 from sqlalchemy.orm.session import Session
-from sqlalchemy import and_
-from datetime import datetime
+from sqlalchemy import and_, func
 from fastapi import HTTPException
 
-from .schemas import CartCreateBase
-from ..models import DbCart
+from ..models import DbCart, DbStock
 
 def _find_cart_item(db: Session, user_id: UUID, product_id: str):
     cart = db.query(DbCart).filter(
         and_(DbCart.user_id == user_id, DbCart.product_id == product_id)
     )
     
-    if not cart.first():
+    if not cart.one():
         raise HTTPException(
             status_code=404,
             detail='The product was not found in the cart'
@@ -20,14 +18,24 @@ def _find_cart_item(db: Session, user_id: UUID, product_id: str):
     
     return cart
 
-def create_cart(db: Session, id: UUID, request: CartCreateBase):
-    addition_datetime = datetime.utcnow()
+def _find_available_stock(db: Session, product_id: str):
+    total_stock = db.query(
+        func.sum(DbStock.units_in_stock)
+    ).filter_by(
+        product_id = product_id
+    ).scalar()
+    return total_stock
+
+def create_cart(db: Session, id: UUID, product_id: str):
+    if not _find_available_stock(db, product_id):
+        raise HTTPException(
+            status_code=400,
+            detail='Not enough product in stock'
+        )
     
     new_cart = DbCart(
         user_id = id,
-        product_id = request.product_id,
-        quantity = request.quantity,
-        addition_datetime = addition_datetime
+        product_id = product_id
     )
     
     db.add(new_cart)
@@ -44,13 +52,11 @@ def modify_cart_amount(db: Session, user_id: UUID, product_id: str, modifier):
         delete_cart_product(db, user_id, product_id)
         return None
     
-    product_stock = sum(
-        warehouse.units_in_stock for warehouse in cart_item.product.stock
-    )
+    product_stock = _find_available_stock(db, product_id)
     
     if cart_item.quantity + modifier > product_stock:
         raise HTTPException(
-            status_code=404,
+            status_code=400,
             detail='Not enough product in stock'
         )
     
@@ -62,7 +68,7 @@ def modify_cart_amount(db: Session, user_id: UUID, product_id: str, modifier):
     
 
 def delete_cart_product(db: Session, user_id: UUID, product_id: str):
-    cart = _find_cart_item(db, user_id, product_id).first()
+    cart = _find_cart_item(db, user_id, product_id).one()
     
     db.delete(cart)
     db.commit()

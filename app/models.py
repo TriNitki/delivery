@@ -148,7 +148,7 @@ class DbCart(Base):
     __tablename__: str = 'carts'
     user_id = Column(UUID, ForeignKey('users.id'), primary_key=True)
     product_id = Column(String(6), ForeignKey('products.id'), primary_key=True)
-    quantity = Column(Integer)
+    quantity = Column(Integer, default=1)
     addition_datetime = Column(DateTime, default=datetime.utcnow)
     
     product: Mapped[DbProduct] = relationship("DbProduct", uselist=False)

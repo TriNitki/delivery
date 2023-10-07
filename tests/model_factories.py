@@ -2,7 +2,6 @@ from polyfactory.factories.pydantic_factory import ModelFactory
 from polyfactory import PostGenerated
 
 from app.user import schemas as user
-from app.cart import schemas as cart
 from app.order import schemas as order
 from app.product import schemas as product
 from app.review import schemas as review
@@ -25,9 +24,6 @@ class ProductUpdateFactory(ModelFactory[product.ProductUpdateBase]):
 
 class OrderFactory(ModelFactory[order.OrderCreateBase]):
     __model__ = order.OrderCreateBase
-
-class CartFactory(ModelFactory[cart.CartCreateBase]):
-    __model__ = cart.CartCreateBase
 
 class ReviewFactory(ModelFactory[review.ReviewCreateBase]):
     __model__ = review.ReviewCreateBase

@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, Path, Body, Query
+from fastapi import APIRouter, Depends, Path, Body
 from sqlalchemy.orm import Session
 from typing import Union
 
@@ -7,7 +7,7 @@ from . import db_cart
 
 from ..user.auth import Auth
 from ..user.schemas import UserDisplay
-from .schemas import CartCreateBase, CartDisplay, UserCartDisplay
+from .schemas import CartDisplay, UserCartDisplay
 from ..user import db_user
 from ..database import get_pg_db
 
@@ -28,16 +28,16 @@ async def get_user_cart(
 async def create_cart(
     current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
     db: Annotated[Session, Depends(get_pg_db)],
-    request: CartCreateBase = Body()
+    product_id: str = Body(embed=True)
 ):
-    return db_cart.create_cart(db, current_user.id, request)
+    return db_cart.create_cart(db, current_user.id, product_id)
 
 @router.patch('/{product_id}', response_model=Union[CartDisplay, None])
 async def modify_cart_amount(
     current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
     db: Annotated[Session, Depends(get_pg_db)],
     product_id: str = Path(),
-    modifier: int = Query()
+    modifier: int = Body(embed=True)
 ):
     return db_cart.modify_cart_amount(db, current_user.id, product_id, modifier)
 

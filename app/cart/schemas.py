@@ -7,10 +7,6 @@ class Cart(BaseModel):
     product_id: str
     quantity: int
     addition_datetime: datetime
-
-class CartCreateBase(BaseModel):
-    quantity: int = Field(..., ge=1)
-    product_id: str
     
 class CartDisplay(BaseModel):
     addition_datetime: datetime
@@ -20,4 +16,4 @@ class CartDisplay(BaseModel):
 
 class UserCartDisplay(BaseModel):
     user_id: UUID = Field(..., alias="id")
-    cart: List[Cart] = []
+    cart: List[Cart] | None = []
