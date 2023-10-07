@@ -35,9 +35,9 @@ def update_user(db: Session, id: uuid.UUID, request: UserUpdateBase):
     db.commit()
     return user.one()
 
-def deactivate_user(db: Session, id: uuid.UUID):
+def update_status(db: Session, id: uuid.UUID, status: bool):
     user = db.query(DbUser).filter(DbUser.id == id)
-    user.update({DbUser.is_active: False})
+    user.update({DbUser.is_active: status})
     
     db.commit()
 

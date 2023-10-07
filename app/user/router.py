@@ -99,9 +99,10 @@ def user_edit(
     a = db_user.update_user(db, current_user.id, request)
     return a
 
-@router.delete('/me', response_model=None)
+@router.put('/me/status', response_model=None)
 def user_deactivate(
-    current_user: Annotated[UserDisplay, Depends(Auth.get_current_active_user)],
-    db: Annotated[Session, Depends(get_pg_db)]
+    current_user: Annotated[UserDisplay, Depends(Auth.get_current_user)],
+    db: Annotated[Session, Depends(get_pg_db)],
+    is_active: bool = Body(..., embed=True)
 ):
-    return db_user.deactivate_user(db, current_user.id)
+    return db_user.update_status(db, current_user.id, is_active)
